@@ -35,10 +35,10 @@ namespace InventoryItemsAnalyzer
                 _curInventRoot = _currentHoverItem.Parent;
             }
 
-            ScanForMaps();
+            ScanInventory();
         }
 
-        private void ScanForMaps()
+        private void ScanInventory()
         {
             if (_curInventRoot == null)
                 return;
@@ -63,7 +63,7 @@ namespace InventoryItemsAnalyzer
 
                 BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item.Path);
 
-                switch (bit.ClassName)
+                switch (bit?.ClassName)
                 {
                     case "Body Armour":
                         if (AnalyzeBodyArmour(mods) && Settings.BodyArmour)

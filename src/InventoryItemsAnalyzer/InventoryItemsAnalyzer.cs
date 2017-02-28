@@ -25,7 +25,7 @@ namespace InventoryItemsAnalyzer
 
         public override void Render()
         {
-            if (!GameController.Game.IngameState.IngameUi.OpenLeftPanel.IsVisible)
+            if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
                 return;
 
             _currentHoverItem = GameController.Game.IngameState.UIHover.AsObject<InventoryItemIcon>();

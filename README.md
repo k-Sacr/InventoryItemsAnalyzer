@@ -8,6 +8,7 @@ plugin "Inventory Items Analyzer" for PoEHUD
 
 
 
-### In progress (Move the mouse the item).
+### In progress:
+(Move the mouse the item)
 
 ![demo](https://cloud.githubusercontent.com/assets/18440948/23447266/65b76cf4-fe7c-11e6-9d77-84798fd92ceb.gif)

@@ -136,7 +136,7 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BaLife)
                     hpOrEs = true;
 
-                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BaEnergyShield && mod.Tier>0)
+                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BaEnergyShield && mod.Tier > 0)
                     hpOrEs = true;
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -171,7 +171,7 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.HLife)
                     hpOrEs = true;
 
-                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.HEnergyShield && mod.Tier>0)
+                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.HEnergyShield && mod.Tier > 0)
                     hpOrEs = true;
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -211,7 +211,7 @@ namespace InventoryItemsAnalyzer
                 else if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BLife)
                     hpOrEs = true;
 
-                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BEnergyShield && mod.Tier>0)
+                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BEnergyShield && mod.Tier > 0)
                     hpOrEs = true;
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -246,7 +246,7 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.GLife)
                     hpOrEs = true;
 
-                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.GEnergyShield && mod.Tier>0)
+                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.GEnergyShield && mod.Tier > 0)
                     hpOrEs = true;
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -284,7 +284,7 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.SLife)
                     hpOrEs = true;
 
-                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.SEnergyShield && mod.Tier>0)
+                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.SEnergyShield && mod.Tier > 0)
                     hpOrEs = true;
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -325,7 +325,7 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BeLife)
                     hpOrEs = true;
 
-                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BeEnergyShield && mod.Tier>0)
+                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BeEnergyShield && mod.Tier > 0)
                     hpOrEs = true;
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -363,7 +363,7 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.RLife)
                     affixCounter++;
 
-                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.REnergyShield && mod.Tier>0)
+                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.REnergyShield && mod.Tier > 0)
                     affixCounter++;
 
                 else if (mod.Record.Group.Contains("Resist"))

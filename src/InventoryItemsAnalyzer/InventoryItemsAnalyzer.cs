@@ -363,7 +363,6 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.RLife)
                     affixCounter++;
 
-                //проверка на -1тир, когда кольцо на ЕС
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.REnergyShield && mod.Tier>0)
                     affixCounter++;
 

@@ -304,7 +304,7 @@ namespace InventoryItemsAnalyzer
 
         #endregion
 
-        [Menu("Right amount of affixes")]
+        [Menu("Required sum affix:")]
         public RangeNode<float> AmountAffixes { get; set; }
 
         [Menu("Hide under mouse?")]

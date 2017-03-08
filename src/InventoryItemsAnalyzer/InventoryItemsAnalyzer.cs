@@ -134,10 +134,10 @@ namespace InventoryItemsAnalyzer
             foreach (var mod in mods)
             {
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BaLife)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BaEnergyShield && mod.Tier > 0)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("Resist"))
                     if (mod.Record.Group == "AllResistances")
@@ -169,10 +169,10 @@ namespace InventoryItemsAnalyzer
             foreach (var mod in mods)
             {
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.HLife)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.HEnergyShield && mod.Tier > 0)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("Resist"))
                     if (mod.Record.Group == "AllResistances")
@@ -209,10 +209,10 @@ namespace InventoryItemsAnalyzer
 
 
                 else if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BLife)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BEnergyShield && mod.Tier > 0)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("Resist"))
                     if (mod.Record.Group == "AllResistances")
@@ -244,10 +244,10 @@ namespace InventoryItemsAnalyzer
             foreach (var mod in mods)
             {
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.GLife)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.GEnergyShield && mod.Tier > 0)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("Resist"))
                     if (mod.Record.Group == "AllResistances")
@@ -282,10 +282,10 @@ namespace InventoryItemsAnalyzer
             foreach (var mod in mods)
             {
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.SLife)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.SEnergyShield && mod.Tier > 0)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("Resist"))
                     if (mod.Record.Group == "AllResistances")
@@ -323,10 +323,10 @@ namespace InventoryItemsAnalyzer
             foreach (var mod in SumAffix(mods))
             {
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BeLife)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BeEnergyShield && mod.Tier > 0)
-                    hpOrEs = true;
+                { hpOrEs = true; affixCounter++; }
 
                 else if (mod.Record.Group.Contains("Resist"))
                     if (mod.Record.Group == "AllResistances")
@@ -479,13 +479,13 @@ namespace InventoryItemsAnalyzer
         private static List<ModValue> SumAffix(List<ModValue> mods)
         {
             foreach (var mod in mods)
-            foreach (var mod2 in mods.Where(x => x != mod && mod.Record.Group == x.Record.Group))
-            {
-                mod2.StatValue[0] += mod.StatValue[0];
-                mod2.StatValue[1] += mod.StatValue[1];
-                mods.Remove(mod);
-                return mods;
-            }
+                foreach (var mod2 in mods.Where(x => x != mod && mod.Record.Group == x.Record.Group))
+                {
+                    mod2.StatValue[0] += mod.StatValue[0];
+                    mod2.StatValue[1] += mod.StatValue[1];
+                    mods.Remove(mod);
+                    return mods;
+                }
             return mods;
         }
 

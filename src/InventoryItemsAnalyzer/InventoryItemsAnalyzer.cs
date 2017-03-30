@@ -54,7 +54,7 @@ namespace InventoryItemsAnalyzer
                 if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false)
                     continue;
                 List<ItemMod> itemMods = modsComponent.ItemMods;
-                List<ModValue> mods = itemMods.Select(it => new ModValue(it, GameController.Files, modsComponent.ItemLevel)).ToList();
+                List<ModValue> mods = itemMods.Select(it => new ModValue(it, GameController.Files, modsComponent.ItemLevel, GameController.Files.BaseItemTypes.Translate(item.Path))).ToList();
 
                 var drawRect = child.GetClientRect();
                 //fix star position

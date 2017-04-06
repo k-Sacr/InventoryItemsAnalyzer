@@ -51,7 +51,7 @@ namespace InventoryItemsAnalyzer
 
 
                 var modsComponent = item?.GetComponent<Mods>();
-                if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false)
+                if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false || string.IsNullOrEmpty(item.Path))
                     continue;
                 List<ItemMod> itemMods = modsComponent.ItemMods;
                 List<ModValue> mods = itemMods.Select(it => new ModValue(it, GameController.Files, modsComponent.ItemLevel, GameController.Files.BaseItemTypes.Translate(item.Path))).ToList();

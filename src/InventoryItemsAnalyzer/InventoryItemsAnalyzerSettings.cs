@@ -84,6 +84,21 @@ namespace InventoryItemsAnalyzer
             ACritMult = new RangeNode<float>(30, 20, 40);
             ACritChance = new RangeNode<float>(30, 20, 40);
             ATotalElemSpellDmg = new RangeNode<float>(30, 20, 40);
+
+
+            WeaponCaster = true;
+            WcTotalElemSpellDmg = new RangeNode<float>(90, 70, 130);
+            WcSpellCritChance = new RangeNode<float>(130, 100, 150);
+            WcToElemDamageSpell = new RangeNode<float>(50, 30, 90);
+            WcCritMult = new RangeNode<float>(30, 20, 40);
+
+            WeaponAttack = true;
+            WaPhysDmg = new RangeNode<float>(200, 100, 500);
+            WaCritChance = new RangeNode<float>(30, 20, 40);
+            WaCritMulti = new RangeNode<float>(30, 20, 40);
+            WaElemDmg = new RangeNode<float>(130, 100, 300);
+            WaDps = new RangeNode<float>(300, 200, 500);
+
         }
 
         #region Body Armour
@@ -304,6 +319,49 @@ namespace InventoryItemsAnalyzer
 
         #endregion
 
+        #region Caster Dagger/Wand/Sceptre
+        [Menu("Caster Dagger/Wand/Sceptre", 100)]
+        public ToggleNode WeaponCaster { get; set; }
+
+        [Menu("Total Elemental Spell Damage", 101, 100)]
+        public RangeNode<float> WcTotalElemSpellDmg { get; set; }
+
+        [Menu("to Fire/Cold/Lightning dmg spells", 102, 100)]
+        public RangeNode<float> WcToElemDamageSpell { get; set; }
+
+        [Menu("Spell Critical Chance", 103, 100)]
+        public RangeNode<float> WcSpellCritChance { get; set; }
+
+        [Menu("Critical Strike Multiplier", 104, 100)]
+        public RangeNode<float> WcCritMult { get; set; }
+
+
+        #endregion
+
+
+        #region Attack Thrusting/Dagger/Wand
+        [Menu("Attack Thrusting/Dagger/Wand", 110)]
+        public ToggleNode WeaponAttack { get; set; }
+
+        [Menu("Physical Damage", 111, 110)]
+        public RangeNode<float> WaPhysDmg { get; set; }
+
+        [Menu("Elemental Damage", 112, 110)]
+        public RangeNode<float> WaElemDmg { get; set; }
+
+        [Menu("DPS", 113, 110)]
+        public RangeNode<float> WaDps { get; set; }
+
+        [Menu("Critical Strike Chance", 114, 110)]
+        public RangeNode<float> WaCritChance { get; set; }
+
+        [Menu("Critical Strike Multiplier", 115, 110)]
+        public RangeNode<float> WaCritMulti { get; set; }
+
+
+        #endregion
+
+
         [Menu("Required sum affix:")]
         public RangeNode<float> AmountAffixes { get; set; }
 
@@ -317,6 +375,6 @@ namespace InventoryItemsAnalyzer
         public ColorNode Color { get; set; }
 
 
-        
+
     }
 }

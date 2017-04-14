@@ -16,7 +16,7 @@ namespace InventoryItemsAnalyzer
     {
         private List<RectangleF> _goodItemsPos;
         private Element _curInventRoot;
-        private InventoryItemIcon _currentHoverItem;
+        private HoverItemIcon _currentHoverItem;
         private readonly string[] _nameAttrib = { "Intelligence", "Strength", "Dexterity" };
         private readonly string[] _incElemDmg = { "FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage" };
 
@@ -29,7 +29,7 @@ namespace InventoryItemsAnalyzer
             if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
                 return;
 
-            _currentHoverItem = GameController.Game.IngameState.UIHover.AsObject<InventoryItemIcon>();
+            _currentHoverItem = GameController.Game.IngameState.UIHover.AsObject<HoverItemIcon>();
 
             if (_currentHoverItem.ToolTipType == ToolTipType.InventoryItem && _currentHoverItem.Item != null)
             {
@@ -48,7 +48,7 @@ namespace InventoryItemsAnalyzer
 
             foreach (var child in _curInventRoot.Children)
             {
-                var item = child.AsObject<InventoryItemIcon>().Item;
+                var item = child.AsObject<NormalInventoryItem>().Item;
 
 
                 var modsComponent = item?.GetComponent<Mods>();

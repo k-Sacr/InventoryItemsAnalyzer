@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using PoeHUD.Plugins;
 using PoeHUD.Poe;
 using PoeHUD.Poe.RemoteMemoryObjects;
@@ -391,6 +394,10 @@ namespace InventoryItemsAnalyzer
                     Settings.Color);
                 parent.TooltipText = "Display color of star on or border around the filtered item";
 
+                parent = MenuPlugin.AddChild(PluginSettingsRootMenu, "Debug Mode",
+                    Settings.DebugMode);
+                parent.TooltipText = "Enable debug mode to report collected information about items";
+
                 #endregion
             }
         }
@@ -543,11 +550,21 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.BaIntelligence)
                     affixCounter++;
-            }
 
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                        LogMessage(mod.Record.Group, 10f);
+                }
+            }
             if (elemRes >= Settings.BaTotalRes)
                 affixCounter++;
 
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
             return hpOrEs && affixCounter >= Settings.AmountAffixes;
         } 
         #endregion
@@ -585,11 +602,20 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.HIntelligence)
                     affixCounter++;
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                        LogMessage(mod.Record.Group, 10f);
+                }
             }
 
             if (elemRes >= Settings.HTotalRes)
                 affixCounter++;
-
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
             return hpOrEs && affixCounter >= Settings.AmountAffixes;
         }
         #endregion
@@ -606,7 +632,7 @@ namespace InventoryItemsAnalyzer
                 {
                     hpOrEs = true;
                     affixCounter++;
-                }
+                    }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.GEnergyShield && mod.Tier > 0)
                 {
@@ -630,11 +656,19 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "Dexterity" && mod.StatValue[0] >= Settings.GDexterity)
                     affixCounter++;
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                        LogMessage(mod.Record.Group, 10f);
+                }
             }
-
             if (elemRes >= Settings.GTotalRes)
                 affixCounter++;
-
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
             return hpOrEs && affixCounter >= Settings.AmountAffixes;
         }
         #endregion
@@ -677,11 +711,19 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.BIntelligence)
                     affixCounter++;
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                        LogMessage(mod.Record.Group, 10f);
+                }
             }
-
             if (elemRes >= Settings.BTotalRes)
                 affixCounter++;
-
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
             return moveSpeed && hpOrEs && affixCounter >= Settings.AmountAffixes; 
            }
         #endregion
@@ -722,27 +764,38 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "IncreasedWeaponElementalDamagePercent" && mod.StatValue[0] >= Settings.BeWeaponElemDamage)
                     affixCounter++;
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                        LogMessage(mod.Record.Group, 10f);
+                }
             }
-
             if (elemRes >= Settings.BeTotalRes)
                 affixCounter++;
-
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
             return hpOrEs && affixCounter >= Settings.AmountAffixes;
         }
         #endregion
         #region Rings
         private bool AnalyzeRing(List<ModValue> mods)
         {
+
             int affixCounter = 0;
             int elemRes = 0;
             int totalAttrib = 0;
 
             foreach (var mod in SumAffix(mods))
             {
+                
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.RLife)
                     affixCounter++;
 
-                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.REnergyShield && mod.Tier > 0)
+                else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.REnergyShield &&
+                         mod.Tier > 0)
                     affixCounter++;
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -753,10 +806,11 @@ namespace InventoryItemsAnalyzer
                     else
                         elemRes += mod.StatValue[0];
 
-                else if (mod.Record.Group == "AttackSpeed" && mod.StatValue[0] >= Settings.RAttackSpeed)
+                else if
+                (mod.Record.Group == "IncreasedAttackSpeed" && mod.StatValue[0] >= Settings.RAttackSpeed)
                     affixCounter++;
-
-                else if (mod.Record.Group == "CastSpeed" && mod.StatValue[0] >= Settings.RCastSpped)
+             
+            else if (mod.Record.Group == "IncreasedCastSpeed" && mod.StatValue[0] >= Settings.RCastSpped)
                     affixCounter++;
 
                 else if (mod.Record.Group == "IncreasedAccuracy" && mod.StatValue[0] >= Settings.RAccuracy)
@@ -779,13 +833,23 @@ namespace InventoryItemsAnalyzer
 
                 else if (_nameAttrib.Contains(mod.Record.Group))
                     totalAttrib += mod.StatValue[0];
+                
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                    LogMessage(mod.Record.Group, 10f);
+                }
             }
-
             if (elemRes >= Settings.RTotalRes)
                 affixCounter++;
 
             if (totalAttrib >= Settings.RTotalAttrib)
                 affixCounter++;
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
 
             return affixCounter >= Settings.AmountAffixes;
         }
@@ -819,7 +883,7 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "IncreasedAccuracy" && mod.StatValue[0] >= Settings.AAccuracy)
                     affixCounter++;
-
+                
                 else if (mod.Record.Group == "PhysicalDamage" && Average(mod.StatValue) >= Settings.APhysDamage)
                     affixCounter++;
 
@@ -849,14 +913,22 @@ namespace InventoryItemsAnalyzer
 
                 else if (_nameAttrib.Contains(mod.Record.Group))
                     totalAttrib += mod.StatValue[0];
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                        LogMessage(mod.Record.Group, 10f);
+                }
             }
-
             if (elemRes >= Settings.ATotalRes)
                 affixCounter++;
 
             if (totalAttrib >= Settings.ATotalAttrib)
                 affixCounter++;
-
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
             return affixCounter >= Settings.AmountAffixes;
         }
         #endregion
@@ -900,11 +972,19 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "SpellCriticalStrikeChanceIncrease" && mod.StatValue[0] >= Settings.SSpellCritChance)
                     affixCounter++;
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                        LogMessage(mod.Record.Group, 10f);
+                }
             }
-
             if (elemRes >= Settings.STotalRes)
                 affixCounter++;
-
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
             return hpOrEs && affixCounter >= Settings.AmountAffixes;
         }
         #endregion
@@ -932,6 +1012,11 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "SpellCriticalStrikeMultiplier" && mod.StatValue[0] >= Settings.WcCritMult)
                     affixCounter++;
+            //DEBUG TEST BLOCK
+                {
+                    if (Settings.DebugMode != false)
+                        LogMessage(mod.Record.Group, 10f);
+                }
             }
 
             if (totalSpellDamage >= Settings.WcTotalElemSpellDmg)
@@ -939,7 +1024,11 @@ namespace InventoryItemsAnalyzer
 
             if (addElemDamage >= Settings.WcToElemDamageSpell)
                 affixCounter++;
-
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
+            }
             return affixCounter >= Settings.AmountAffixes;
         } 
         #endregion
@@ -975,7 +1064,13 @@ namespace InventoryItemsAnalyzer
             var critMulti = 1f + mods.GetStatValue("LocalCriticalMultiplier") / 100f;
             if (critMulti >= Settings.WaCritMulti)
                 affixCounter++;
+            //DEBUG TEST BLOCK
+            {
+                if (Settings.DebugMode != false)
+                    LogMessage(component, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
 
+            }
             return affixCounter >= Settings.AmountAffixes;
         }
         #endregion

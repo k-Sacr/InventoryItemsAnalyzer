@@ -1,4 +1,5 @@
-﻿using PoeHUD.Hud.Settings;
+﻿using System.Diagnostics;
+using PoeHUD.Hud.Settings;
 using SharpDX;
 
 namespace InventoryItemsAnalyzer
@@ -14,6 +15,7 @@ namespace InventoryItemsAnalyzer
             StarOrBorder = true;
             AmountAffixes = new RangeNode<float>(2, 0, 5);
             Color = new ColorBGRA(255, 215, 0, 255);
+            DebugMode = false;
             #endregion
             #region BodyArmour
             BodyArmour = true;

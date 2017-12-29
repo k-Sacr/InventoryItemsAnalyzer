@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Threading;
 using PoeHUD.Plugins;
 using PoeHUD.Poe;
 using PoeHUD.Poe.RemoteMemoryObjects;
@@ -44,7 +41,7 @@ namespace InventoryItemsAnalyzer
             base.InitialiseMenu(mainMenu);
             MenuItem parent;
             MenuItem tmpNode;
-            MenuItem tmpNodeInner;
+          //MenuItem tmpNodeInner;
             {
                 #region Body Armour Menu
                 parent = MenuPlugin.AddChild(PluginSettingsRootMenu, "Body Armour",
@@ -73,7 +70,7 @@ namespace InventoryItemsAnalyzer
                 }
                 #endregion
                 #region Helmet Menu
-                parent = MenuPlugin.AddChild(PluginSettingsRootMenu, "Helemts",
+                parent = MenuPlugin.AddChild(PluginSettingsRootMenu, "Helmets",
                     Settings.Helmet);
                 parent.TooltipText = "Helmet Filter Settings";
                 {
@@ -81,7 +78,7 @@ namespace InventoryItemsAnalyzer
                         Settings.HLife);
                     tmpNode.TooltipText = "Set the minimum value to filter Life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Sheild",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
                         Settings.HEnergyShield);
                     tmpNode.TooltipText = "Set the minimum value to filter Energy Shield value";
 
@@ -93,8 +90,8 @@ namespace InventoryItemsAnalyzer
                         Settings.HAccuracy);
                     tmpNode.TooltipText = "Set the minimum value to filter total accuracy value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Intellligence",
-                        Settings.HTotalRes);
+                    tmpNode = MenuPlugin.AddChild(parent, "Intelligence",
+                        Settings.HIntelligence);
                     tmpNode.TooltipText = "Set the minimum value to filter Intelligence value";
 
                 }
@@ -112,7 +109,7 @@ namespace InventoryItemsAnalyzer
                         Settings.GTotalRes);
                     tmpNode.TooltipText = "Set the minimum value to filter for total resistance value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Sheild",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
                         Settings.GEnergyShield);
                     tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
 
@@ -139,7 +136,7 @@ namespace InventoryItemsAnalyzer
                         Settings.BLife);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Sheild",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
                         Settings.BEnergyShield);
                     tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
 
@@ -153,11 +150,11 @@ namespace InventoryItemsAnalyzer
 
                     tmpNode = MenuPlugin.AddChild(parent, "Intelligence",
                         Settings.BIntelligence);
-                    tmpNode.TooltipText = "Set the minimum value to filter for intelligince value";
+                    tmpNode.TooltipText = "Set the minimum value to filter for intelligence value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Dexterity",
-                        Settings.GDexterity);
-                    tmpNode.TooltipText = "Set the minimum value to filter for dexterity value";
+                    tmpNode = MenuPlugin.AddChild(parent, "Movement Speed",
+                        Settings.BMoveSpeed);
+                    tmpNode.TooltipText = "Set the minimum value to filter for movement speed value";
                 }
                 #endregion
                 #region Belts Menu
@@ -169,7 +166,7 @@ namespace InventoryItemsAnalyzer
                         Settings.BeLife);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Sheild",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
                         Settings.BeEnergyShield);
                     tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
 
@@ -295,16 +292,16 @@ namespace InventoryItemsAnalyzer
                     tmpNode.TooltipText = "Set the minimum value to filter for total elemental spell Damage value";
                 }
                 #endregion
-                #region Sheilds Menu
-                parent = MenuPlugin.AddChild(PluginSettingsRootMenu, "Sheilds",
+                #region Shields Menu
+                parent = MenuPlugin.AddChild(PluginSettingsRootMenu, "Shields",
                     Settings.Shield);
-                parent.TooltipText = "Sheild Filter Settings";
+                parent.TooltipText = "Shield Filter Settings";
                 {
                     tmpNode = MenuPlugin.AddChild(parent, "Life",
                         Settings.Shield);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Sheild",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
                         Settings.SEnergyShield);
                     tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
 
@@ -682,10 +679,12 @@ namespace InventoryItemsAnalyzer
 
             foreach (var mod in mods)
             {
-                if (mod.Record.Group == "MovementVelocity" && mod.StatValue[0] > 20)
+                if (mod.Record.Group == "MovementVelocity" && mod.StatValue[0] >= Settings.BMoveSpeed)
+                { 
                     moveSpeed = true;
-
-
+                    affixCounter++;
+                }
+            
                 else if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BLife)
                 {
                     hpOrEs = true;
@@ -711,7 +710,8 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.BIntelligence)
                     affixCounter++;
-            //DEBUG TEST BLOCK
+                
+                //DEBUG TEST BLOCK
                 {
                     if (Settings.DebugMode != false)
                         LogMessage(mod.Record.Group, 10f);

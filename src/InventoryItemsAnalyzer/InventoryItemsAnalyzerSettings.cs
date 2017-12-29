@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using PoeHUD.Hud.Settings;
+﻿using PoeHUD.Hud.Settings;
 using SharpDX;
 
 namespace InventoryItemsAnalyzer
@@ -49,6 +48,7 @@ namespace InventoryItemsAnalyzer
             BEnergyShield = new RangeNode<int>(2, 0, 5);
             BStrength = new RangeNode<float>(40, 30, 55);
             BIntelligence = new RangeNode<float>(40, 30, 55);
+            BMoveSpeed = new RangeNode<float>(30, 0, 50);
             #endregion
             #region Belts
             Belt = true;
@@ -88,7 +88,7 @@ namespace InventoryItemsAnalyzer
             ACritChance = new RangeNode<float>(30, 20, 40);
             ATotalElemSpellDmg = new RangeNode<float>(30, 20, 40);
             #endregion
-            #region Sheilds
+            #region Shields
             Shield = true;
             SLife = new RangeNode<float>(80, 60, 110);
             SEnergyShield = new RangeNode<int>(2, 0, 5);
@@ -146,6 +146,7 @@ namespace InventoryItemsAnalyzer
         public RangeNode<int> BEnergyShield { get; set; }
         public RangeNode<float> BTotalRes { get; set; }
         public RangeNode<float> BStrength { get; set; }
+        public RangeNode<float> BMoveSpeed { get; set; }
         public RangeNode<float> BIntelligence { get; set; }
         #endregion  
         #region Belt
@@ -172,7 +173,6 @@ namespace InventoryItemsAnalyzer
         public RangeNode<float> RIncRarity { get; set; }
         public RangeNode<float> RAttackSpeed { get; set; }
         public RangeNode<float> RCastSpped { get; set; }
-
         #endregion
         #region Amulet
         public ToggleNode Amulet { get; set; }
@@ -219,6 +219,7 @@ namespace InventoryItemsAnalyzer
         public ToggleNode HideUnderMouse { get; set; }
         public ToggleNode StarOrBorder { get; set; }
         public ColorNode Color { get; set; }
+        public ToggleNode DebugMode { get; set; }
     } 
     #endregion
 }

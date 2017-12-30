@@ -199,7 +199,7 @@ namespace InventoryItemsAnalyzer
                         Settings.REnergyShield);
                     tmpNode.TooltipText = "Set the minimum value to filter for energy shield tier value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Total Resitance",
+                    tmpNode = MenuPlugin.AddChild(parent, "Total Resistance",
                         Settings.RTotalRes);
                     tmpNode.TooltipText = "Set the minimum value to filter for total resistance value";
 

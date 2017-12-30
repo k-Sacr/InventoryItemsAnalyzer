@@ -1,5 +1,7 @@
 # InventoryItemsAnalyzer
 plugin "Inventory Items Analyzer" for PoEHUD
+Remove the plugins config file before using new version.
+
 
 ## Demo
 ### Config:

@@ -53,8 +53,8 @@ namespace InventoryItemsAnalyzer
                     tmpNode.TooltipText = "Set the minimum value to filter life value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Energy Shield (tier)",
-                        Settings.BaLife);
-                    tmpNode.TooltipText = "Set the minimum value to filter Energy Shield value";
+                        Settings.BaEnergyShield);
+                    tmpNode.TooltipText = "Set the minimum value to filter energy shield tier value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Total Resistance",
                         Settings.BaTotalRes);
@@ -78,9 +78,9 @@ namespace InventoryItemsAnalyzer
                         Settings.HLife);
                     tmpNode.TooltipText = "Set the minimum value to filter Life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield (Tier)",
                         Settings.HEnergyShield);
-                    tmpNode.TooltipText = "Set the minimum value to filter Energy Shield value";
+                    tmpNode.TooltipText = "Set the minimum value to filter energy shield tier value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Total Resistance",
                         Settings.HTotalRes);
@@ -104,14 +104,18 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Life",
                         Settings.GLife);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
+                    
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield (Tier)",
+                        Settings.GEnergyShield);
+                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield tier value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Total Resistance",
                         Settings.GTotalRes);
                     tmpNode.TooltipText = "Set the minimum value to filter for total resistance value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
-                        Settings.GEnergyShield);
-                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
+                    tmpNode = MenuPlugin.AddChild(parent, "Dexterity",
+                        Settings.GDexterity);
+                    tmpNode.TooltipText = "Set the minimum value to filter for dexterity value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Accuracy",
                         Settings.GAccuracy);
@@ -120,11 +124,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Attack Speed",
                         Settings.GAttackSpeed);
                     tmpNode.TooltipText = "Set the minimum value to filter for attack speed value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Dexterity",
-                        Settings.GDexterity);
-                    tmpNode.TooltipText = "Set the minimum value to filter for dexterity value";
-
                 }
                 #endregion
                 #region Boots Menu
@@ -136,9 +135,9 @@ namespace InventoryItemsAnalyzer
                         Settings.BLife);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield (Tier)",
                         Settings.BEnergyShield);
-                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
+                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield tier value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Total Resistance",
                         Settings.BTotalRes);
@@ -166,9 +165,9 @@ namespace InventoryItemsAnalyzer
                         Settings.BeLife);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield (Tier)",
                         Settings.BeEnergyShield);
-                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
+                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield tier value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Total Resistance",
                         Settings.BeTotalRes);
@@ -196,9 +195,9 @@ namespace InventoryItemsAnalyzer
                         Settings.RLife);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield (Tier)",
                         Settings.REnergyShield);
-                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
+                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield tier value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Total Resitance",
                         Settings.RTotalRes);
@@ -247,9 +246,9 @@ namespace InventoryItemsAnalyzer
                         Settings.ALife);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield (Tier)",
                         Settings.AEnergyShield);
-                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
+                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield tier value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Total Resitance",
                         Settings.ATotalRes);
@@ -298,12 +297,12 @@ namespace InventoryItemsAnalyzer
                 parent.TooltipText = "Shield Filter Settings";
                 {
                     tmpNode = MenuPlugin.AddChild(parent, "Life",
-                        Settings.Shield);
+                        Settings.SLife);
                     tmpNode.TooltipText = "Set the minimum value to filter for life value";
 
-                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield",
+                    tmpNode = MenuPlugin.AddChild(parent, "Energy Shield (Tier)",
                         Settings.SEnergyShield);
-                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield value";
+                    tmpNode.TooltipText = "Set the minimum value to filter for energy shield tier value";
 
                     tmpNode = MenuPlugin.AddChild(parent, "Total Resistance",
                         Settings.STotalRes);

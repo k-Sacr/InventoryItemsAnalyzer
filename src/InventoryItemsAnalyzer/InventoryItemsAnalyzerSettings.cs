@@ -20,14 +20,14 @@ namespace InventoryItemsAnalyzer
             BodyArmour = true;
             BaLife = new RangeNode<float>(85, 60, 120);
             BaTotalRes = new RangeNode<float>(80, 60, 100);
-            BaEnergyShield = new RangeNode<int>(2, 0, 5);
+            BaEnergyShield = new RangeNode<int>(2, 1, 5);
             BaStrength = new RangeNode<float>(40, 30, 55);
             BaIntelligence = new RangeNode<float>(40, 30, 55);
             #endregion
             #region Helmet
             Helmet = true;
             HLife = new RangeNode<float>(65, 40, 100);
-            HEnergyShield = new RangeNode<int>(2, 0, 5);
+            HEnergyShield = new RangeNode<int>(2, 1, 5);
             HTotalRes = new RangeNode<float>(80, 60, 100);
             HAccuracy = new RangeNode<float>(300, 200, 400);
             HIntelligence = new RangeNode<float>(40, 30, 55);
@@ -36,7 +36,7 @@ namespace InventoryItemsAnalyzer
             Gloves = true;
             GLife = new RangeNode<float>(65, 40, 100);
             GTotalRes = new RangeNode<float>(80, 40, 130);
-            GEnergyShield = new RangeNode<int>(2, 0, 5);
+            GEnergyShield = new RangeNode<int>(2, 1, 5);
             GAccuracy = new RangeNode<float>(300, 200, 400);
             GAttackSpeed = new RangeNode<float>(10, 7, 16);
             GDexterity = new RangeNode<float>(40, 30, 55);
@@ -45,15 +45,15 @@ namespace InventoryItemsAnalyzer
             Boots = true;
             BLife = new RangeNode<float>(65, 40, 100);
             BTotalRes = new RangeNode<float>(70, 40, 130);
-            BEnergyShield = new RangeNode<int>(2, 0, 5);
+            BEnergyShield = new RangeNode<int>(2, 1, 5);
             BStrength = new RangeNode<float>(40, 30, 55);
             BIntelligence = new RangeNode<float>(40, 30, 55);
-            BMoveSpeed = new RangeNode<float>(30, 0, 50);
+            BMoveSpeed = new RangeNode<float>(20, 0, 50);
             #endregion
             #region Belts
             Belt = true;
             BeLife = new RangeNode<float>(70, 45, 100);
-            BeEnergyShield = new RangeNode<int>(2, 0, 5);
+            BeEnergyShield = new RangeNode<int>(2, 1, 5);
             BeTotalRes = new RangeNode<float>(70, 40, 130);
             BeStrength = new RangeNode<float>(35, 25, 55);
             BeArmour = new RangeNode<int>(280, 200, 400);
@@ -62,7 +62,7 @@ namespace InventoryItemsAnalyzer
             #region Rings
             Ring = true;
             RLife = new RangeNode<float>(55, 40, 80);
-            REnergyShield = new RangeNode<int>(2, 0, 5);
+            REnergyShield = new RangeNode<int>(2, 1, 5);
             RTotalRes = new RangeNode<float>(80, 40, 130);
             RTotalAttrib = new RangeNode<float>(75, 50, 100);
             RPhysDamage = new RangeNode<float>(8, 6, 12);
@@ -76,7 +76,7 @@ namespace InventoryItemsAnalyzer
             #region Amulets
             Amulet = true;
             ALife = new RangeNode<float>(55, 40, 80);
-            AEnergyShield = new RangeNode<int>(2, 0, 5);
+            AEnergyShield = new RangeNode<int>(2, 1, 5);
             ATotalRes = new RangeNode<float>(80, 40, 130);
             ATotalAttrib = new RangeNode<float>(75, 50, 100);
             APhysDamage = new RangeNode<float>(8, 6, 12);
@@ -91,7 +91,7 @@ namespace InventoryItemsAnalyzer
             #region Shields
             Shield = true;
             SLife = new RangeNode<float>(80, 60, 110);
-            SEnergyShield = new RangeNode<int>(2, 0, 5);
+            SEnergyShield = new RangeNode<int>(2, 1, 5);
             STotalRes = new RangeNode<float>(100, 70, 130);
             SStrength = new RangeNode<float>(35, 25, 55);
             SIntelligence = new RangeNode<float>(35, 25, 55);

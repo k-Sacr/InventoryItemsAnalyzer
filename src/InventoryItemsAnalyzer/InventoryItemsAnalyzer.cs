@@ -67,10 +67,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Intelligence",
                         Settings.BaIntelligence);
                     tmpNode.TooltipText = "Set the minimum value to filter Intelligence value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.BaAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
                 #endregion
                 #region Helmet Menu
@@ -97,10 +93,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Intelligence",
                         Settings.HIntelligence);
                     tmpNode.TooltipText = "Set the minimum value to filter Intelligence value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.HAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
 
                 }
                 #endregion
@@ -132,14 +124,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Attack Speed",
                         Settings.GAttackSpeed);
                     tmpNode.TooltipText = "Set the minimum value to filter for attack speed value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Physical Damage to Attacks",
-                          Settings.GPhysDamage);
-                    tmpNode.TooltipText = "Set the minimum value to filter for physical damage to attacks value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.GAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
                 #endregion
                 #region Boots Menu
@@ -170,10 +154,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Movement Speed",
                         Settings.BMoveSpeed);
                     tmpNode.TooltipText = "Set the minimum value to filter for movement speed value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.BAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
                 #endregion
                 #region Belts Menu
@@ -204,10 +184,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Weapon Elemental Damage",
                         Settings.BeWeaponElemDamage);
                     tmpNode.TooltipText = "Set the minimum value to filter for weapon elemental damage value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.BeAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
                 #endregion
                 #region Rings Menu
@@ -258,10 +234,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Cast Speed",
                         Settings.RCastSpped);
                     tmpNode.TooltipText = "Set the minimum value to filter for increased cast speed value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.RAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
 
                 #endregion
@@ -317,10 +289,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Total Elemental Spell Damage",
                         Settings.ATotalElemSpellDmg);
                     tmpNode.TooltipText = "Set the minimum value to filter for total elemental spell Damage value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.AAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
                 #endregion
                 #region Shields Menu
@@ -355,10 +323,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Spell Critical Strike Chance",
                         Settings.SSpellCritChance);
                     tmpNode.TooltipText = "Set the minimum value to filter for spell critical strike chance value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.SAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
                 #endregion
                 #region Caster Dagger/Wand/Sceptre Menu
@@ -381,10 +345,6 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Critical Strike Multiplier",
                         Settings.WcCritMult);
                     tmpNode.TooltipText = "Set the minimum value to filter for critical strike multiplier value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.WcAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
                 #endregion
                 #region Attack Thrusting/Dagger/Wand Menu
@@ -411,13 +371,12 @@ namespace InventoryItemsAnalyzer
                     tmpNode = MenuPlugin.AddChild(parent, "Critical Strike Multiplier",
                         Settings.WaCritMulti);
                     tmpNode.TooltipText = "Set the minimum value to filter for  attack critical strike multiplier value";
-
-                    tmpNode = MenuPlugin.AddChild(parent, "Affix Count",
-                        Settings.WaAffixes);
-                    tmpNode.TooltipText = "Set the minimum number of affixes for this item class";
                 }
                 #endregion
                 #region Additional Menu Settings
+                parent = MenuPlugin.AddChild(PluginSettingsRootMenu, "Required sum affix:",
+                    Settings.AmountAffixes);
+                parent.TooltipText = "Set the minimum number of affxies an item must have";
 
                 parent = MenuPlugin.AddChild(PluginSettingsRootMenu, "Hide under Mouse",
                     Settings.HideUnderMouse);
@@ -529,48 +488,6 @@ namespace InventoryItemsAnalyzer
                     case "Thrusting One Hand Sword":
                         if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
                             _goodItemsPos.Add(drawRect);
-                        break;               
-                    case "Staff":
-                        if (AnalyzeWeaponCaster(mods) && Settings.WeaponCaster)
-                            _goodItemsPos.Add(drawRect);
-                        else if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
-                        break;
-                    case "Claw":
-                        if (AnalyzeWeaponCaster(mods) && Settings.WeaponCaster)
-                            _goodItemsPos.Add(drawRect);
-                        else if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
-                        break;
-                    case "One Hand Sword":
-                        if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
-                        break;
-                    case "Two Hand Sword":
-                        if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
-                        break;
-                    case "One Hand Axe":
-                        if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
-                        break;
-                    case "Two Hand Axe":
-                        if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
-                        break;
-                    case "One Hand Mace":
-                        if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
-                        break;
-                    case "Two Hand Mace":
-                        if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
-                        break;
-                    case "Bow":
-                        if (AnalyzeWeaponCaster(mods) && Settings.WeaponCaster)
-                            _goodItemsPos.Add(drawRect);
-                        else if (AnalyzeWeaponAttack(item) && Settings.WeaponAttack)
-                            _goodItemsPos.Add(drawRect);
                         break;
                 }
             }
@@ -598,7 +515,7 @@ namespace InventoryItemsAnalyzer
         #region Body Armour
         private bool AnalyzeBodyArmour(List<ModValue> mods)
         {
-            int BaaffixCounter = 0;
+            int affixCounter = 0;
             int elemRes = 0;
             bool hpOrEs = false;
 
@@ -607,13 +524,13 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BaLife)
                 {
                     hpOrEs = true;
-                    BaaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BaEnergyShield && mod.Tier > 0)
                 {
                     hpOrEs = true;
-                    BaaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -625,10 +542,10 @@ namespace InventoryItemsAnalyzer
                         elemRes += mod.StatValue[0];
 
                 else if (mod.Record.Group == "Strength" && mod.StatValue[0] >= Settings.BaStrength)
-                    BaaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.BaIntelligence)
-                    BaaffixCounter++;
+                    affixCounter++;
 
             //DEBUG TEST BLOCK
                 {
@@ -637,20 +554,20 @@ namespace InventoryItemsAnalyzer
                 }
             }
             if (elemRes >= Settings.BaTotalRes)
-                BaaffixCounter++;
+                affixCounter++;
 
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + BaaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
-            return BaaffixCounter >= Settings.BaAffixes;
+            return hpOrEs && affixCounter >= Settings.AmountAffixes;
         } 
         #endregion
         #region Helmets
         private bool AnalyzeHelmet(List<ModValue> mods)
         {
-            int HaffixCounter = 0;
+            int affixCounter = 0;
             int elemRes = 0;
             bool hpOrEs = false;
 
@@ -659,13 +576,13 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.HLife)
                 {
                     hpOrEs = true;
-                    HaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.HEnergyShield && mod.Tier > 0)
                 {
                     hpOrEs = true;
-                    HaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -677,10 +594,10 @@ namespace InventoryItemsAnalyzer
                         elemRes += mod.StatValue[0];
 
                 else if (mod.Record.Group == "Accuracy" && mod.StatValue[0] >= Settings.HAccuracy)
-                    HaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.HIntelligence)
-                    HaffixCounter++;
+                    affixCounter++;
             //DEBUG TEST BLOCK
                 {
                     if (Settings.DebugMode != false)
@@ -689,19 +606,19 @@ namespace InventoryItemsAnalyzer
             }
 
             if (elemRes >= Settings.HTotalRes)
-                HaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + HaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
-            return HaffixCounter >= Settings.HAffixes;
+            return hpOrEs && affixCounter >= Settings.AmountAffixes;
         }
         #endregion
         #region Gloves
         private bool AnalyzeGloves(List<ModValue> mods)
         {
-            int GaffixCounter = 0;
+            int affixCounter = 0;
             int elemRes = 0;
             bool hpOrEs = false;
 
@@ -710,13 +627,13 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.GLife)
                 {
                     hpOrEs = true;
-                    GaffixCounter++;
+                    affixCounter++;
                     }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.GEnergyShield && mod.Tier > 0)
                 {
                     hpOrEs = true;
-                    GaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -728,16 +645,13 @@ namespace InventoryItemsAnalyzer
                         elemRes += mod.StatValue[0];
 
                 else if (mod.Record.Group == "IncreasedAccuracy" && mod.StatValue[0] >= Settings.GAccuracy)
-                    GaffixCounter++;
+                    affixCounter++;
 
-                else if (mod.Record.Group == "IncreasedAttackSpeed" && mod.StatValue[0] >= Settings.GAttackSpeed)
-                    GaffixCounter++;
-
-                else if (mod.Record.Group == "PhysicalDamage" && Average(mod.StatValue) >= Settings.GPhysDamage)
-                    GaffixCounter++;
+                else if (mod.Record.Group == "AttackSpeed" && mod.StatValue[0] >= Settings.GAttackSpeed)
+                    affixCounter++;
 
                 else if (mod.Record.Group == "Dexterity" && mod.StatValue[0] >= Settings.GDexterity)
-                    GaffixCounter++;
+                    affixCounter++;
             //DEBUG TEST BLOCK
                 {
                     if (Settings.DebugMode != false)
@@ -745,19 +659,19 @@ namespace InventoryItemsAnalyzer
                 }
             }
             if (elemRes >= Settings.GTotalRes)
-                GaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + GaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
-            return GaffixCounter >= Settings.GAffixes;
+            return hpOrEs && affixCounter >= Settings.AmountAffixes;
         }
         #endregion
         #region Boots
         private bool AnalyzeBoots(List<ModValue> mods)
         {
-            int BaffixCounter = 0;
+            int affixCounter = 0;
             int elemRes = 0;
             bool hpOrEs = false;
             bool moveSpeed = false;
@@ -767,19 +681,19 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "MovementVelocity" && mod.StatValue[0] >= Settings.BMoveSpeed)
                 { 
                     moveSpeed = true;
-                    BaffixCounter++;
+                    affixCounter++;
                 }
             
                 else if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BLife)
                 {
                     hpOrEs = true;
-                    BaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BEnergyShield && mod.Tier > 0)
                 {
                     hpOrEs = true;
-                    BaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -791,10 +705,10 @@ namespace InventoryItemsAnalyzer
                         elemRes += mod.StatValue[0];
 
                 else if (mod.Record.Group == "Strength" && mod.StatValue[0] >= Settings.BStrength)
-                    BaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.BIntelligence)
-                    BaffixCounter++;
+                    affixCounter++;
                 
                 //DEBUG TEST BLOCK
                 {
@@ -803,19 +717,19 @@ namespace InventoryItemsAnalyzer
                 }
             }
             if (elemRes >= Settings.BTotalRes)
-                BaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + BaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
-            return BaffixCounter >= Settings.BAffixes; 
+            return moveSpeed && hpOrEs && affixCounter >= Settings.AmountAffixes; 
            }
         #endregion
         #region Belts
         private bool AnalyzeBelt(List<ModValue> mods)
         {
-            int BeaffixCounter = 0;
+            int affixCounter = 0;
             int elemRes = 0;
             bool hpOrEs = false;
 
@@ -824,13 +738,13 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.BeLife)
                 {
                     hpOrEs = true;
-                    BeaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.BeEnergyShield && mod.Tier > 0)
                 {
                     hpOrEs = true;
-                    BeaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -842,13 +756,13 @@ namespace InventoryItemsAnalyzer
                         elemRes += mod.StatValue[0];
 
                 else if (mod.Record.Group == "Strength" && mod.StatValue[0] >= Settings.BeStrength)
-                    BeaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "IncreasedPhysicalDamageReductionRating" && mod.StatValue[0] >= Settings.BeArmour)
-                    BeaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "IncreasedWeaponElementalDamagePercent" && mod.StatValue[0] >= Settings.BeWeaponElemDamage)
-                    BeaffixCounter++;
+                    affixCounter++;
             //DEBUG TEST BLOCK
                 {
                     if (Settings.DebugMode != false)
@@ -856,20 +770,20 @@ namespace InventoryItemsAnalyzer
                 }
             }
             if (elemRes >= Settings.BeTotalRes)
-                BeaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + BeaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
-            return BeaffixCounter >= Settings.BeAffixes;
+            return hpOrEs && affixCounter >= Settings.AmountAffixes;
         }
         #endregion
         #region Rings
         private bool AnalyzeRing(List<ModValue> mods)
         {
 
-            int RaffixCounter = 0;
+            int affixCounter = 0;
             int elemRes = 0;
             int totalAttrib = 0;
 
@@ -877,11 +791,11 @@ namespace InventoryItemsAnalyzer
             {
                 
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.RLife)
-                    RaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.REnergyShield &&
                          mod.Tier > 0)
-                    RaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group.Contains("Resist"))
                     if (mod.Record.Group == "AllResistances")
@@ -893,25 +807,25 @@ namespace InventoryItemsAnalyzer
 
                 else if
                 (mod.Record.Group == "IncreasedAttackSpeed" && mod.StatValue[0] >= Settings.RAttackSpeed)
-                    RaffixCounter++;
+                    affixCounter++;
              
             else if (mod.Record.Group == "IncreasedCastSpeed" && mod.StatValue[0] >= Settings.RCastSpped)
-                    RaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "IncreasedAccuracy" && mod.StatValue[0] >= Settings.RAccuracy)
-                    RaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "PhysicalDamage" && Average(mod.StatValue) >= Settings.RPhysDamage)
-                    RaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "IncreasedWeaponElementalDamagePercent" && mod.StatValue[0] >= Settings.RWeaponElemDamage)
-                    RaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "ManaRegeneration" && mod.StatValue[0] >= Settings.RManaRegen)
-                    RaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "ItemFoundRarityIncrease" && mod.StatValue[0] >= Settings.RIncRarity)
-                    RaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "HybridStat")
                     totalAttrib += mod.StatValue[0] * 3;
@@ -926,36 +840,36 @@ namespace InventoryItemsAnalyzer
                 }
             }
             if (elemRes >= Settings.RTotalRes)
-                RaffixCounter++;
+                affixCounter++;
 
             if (totalAttrib >= Settings.RTotalAttrib)
-                RaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + RaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
 
-            return RaffixCounter >= Settings.RAffixes;
+            return affixCounter >= Settings.AmountAffixes;
         }
         #endregion
         #region Amulet
         private bool AnalyzeAmulet(List<ModValue> mods)
         {
-            int AaffixCounter = 0;
+            int affixCounter = 0;
             int elemRes = 0;
             int totalAttrib = 0;
 
             foreach (var mod in SumAffix(mods))
             {
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.ALife)
-                    AaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group.Contains("EnergyShield"))
                 {
                     var tier = mod.Tier > 0 ? mod.Tier : FixTierEs(mod.Record.Key);
                     if (tier <= Settings.AEnergyShield)
-                        AaffixCounter++;
+                        affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -967,28 +881,28 @@ namespace InventoryItemsAnalyzer
                         elemRes += mod.StatValue[0];
 
                 else if (mod.Record.Group == "IncreasedAccuracy" && mod.StatValue[0] >= Settings.AAccuracy)
-                    AaffixCounter++;
+                    affixCounter++;
                 
                 else if (mod.Record.Group == "PhysicalDamage" && Average(mod.StatValue) >= Settings.APhysDamage)
-                    AaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "IncreasedWeaponElementalDamagePercent" && mod.StatValue[0] >= Settings.AWeaponElemDamage)
-                    AaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "ManaRegeneration" && mod.StatValue[0] >= Settings.AManaRegen)
-                    AaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "ItemFoundRarityIncrease" && mod.StatValue[0] >= Settings.AIncRarity)
-                    AaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "CriticalStrikeMultiplier" && mod.StatValue[0] >= Settings.ACritMult)
-                    AaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "CriticalStrikeChanceIncrease" && mod.StatValue[0] >= Settings.ACritChance)
-                    AaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "SpellDamage" && mod.StatValue[0] >= Settings.ATotalElemSpellDmg)
-                    AaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "AllAttributes")
                     totalAttrib += mod.StatValue[0] * 3;
@@ -1005,22 +919,22 @@ namespace InventoryItemsAnalyzer
                 }
             }
             if (elemRes >= Settings.ATotalRes)
-                AaffixCounter++;
+                affixCounter++;
 
             if (totalAttrib >= Settings.ATotalAttrib)
-                AaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + AaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
-            return AaffixCounter >= Settings.AAffixes;
+            return affixCounter >= Settings.AmountAffixes;
         }
         #endregion
         #region Shields
         private bool AnalyzeShield(List<ModValue> mods)
         {
-            int SaffixCounter = 0;
+            int affixCounter = 0;
             int elemRes = 0;
             bool hpOrEs = false;
 
@@ -1029,13 +943,13 @@ namespace InventoryItemsAnalyzer
                 if (mod.Record.Group == "IncreasedLife" && mod.StatValue[0] >= Settings.SLife)
                 {
                     hpOrEs = true;
-                    SaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("EnergyShield") && mod.Tier <= Settings.SEnergyShield && mod.Tier > 0)
                 {
                     hpOrEs = true;
-                    SaffixCounter++;
+                    affixCounter++;
                 }
 
                 else if (mod.Record.Group.Contains("Resist"))
@@ -1047,16 +961,16 @@ namespace InventoryItemsAnalyzer
                         elemRes += mod.StatValue[0];
 
                 else if (mod.Record.Group == "Strength" && mod.StatValue[0] >= Settings.SStrength)
-                    SaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.SIntelligence)
-                    SaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "SpellDamage" && mod.StatValue[0] >= Settings.SSpellDamage)
-                    SaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group == "SpellCriticalStrikeChanceIncrease" && mod.StatValue[0] >= Settings.SSpellCritChance)
-                    SaffixCounter++;
+                    affixCounter++;
             //DEBUG TEST BLOCK
                 {
                     if (Settings.DebugMode != false)
@@ -1064,19 +978,19 @@ namespace InventoryItemsAnalyzer
                 }
             }
             if (elemRes >= Settings.STotalRes)
-                SaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + SaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
-            return SaffixCounter >= Settings.SAffixes;
+            return hpOrEs && affixCounter >= Settings.AmountAffixes;
         }
         #endregion
         #region Weapon Caster
         private bool AnalyzeWeaponCaster(List<ModValue> mods)
         {
-            int WcaffixCounter = 0;
+            int affixCounter = 0;
             int totalSpellDamage = 0;
             int addElemDamage = 0;
 
@@ -1084,7 +998,7 @@ namespace InventoryItemsAnalyzer
             foreach (var mod in SumAffix(mods))
             {
                 if (mod.Record.Group == "SpellCriticalStrikeChanceIncrease" && mod.StatValue[0] >= Settings.WcSpellCritChance)
-                    WcaffixCounter++;
+                    affixCounter++;
 
                 else if (mod.Record.Group.Contains("SpellDamage"))
                     totalSpellDamage += mod.StatValue[0];
@@ -1096,7 +1010,7 @@ namespace InventoryItemsAnalyzer
                     addElemDamage += Average(mod.StatValue);
 
                 else if (mod.Record.Group == "SpellCriticalStrikeMultiplier" && mod.StatValue[0] >= Settings.WcCritMult)
-                    WcaffixCounter++;
+                    affixCounter++;
             //DEBUG TEST BLOCK
                 {
                     if (Settings.DebugMode != false)
@@ -1105,22 +1019,22 @@ namespace InventoryItemsAnalyzer
             }
 
             if (totalSpellDamage >= Settings.WcTotalElemSpellDmg)
-                WcaffixCounter++;
+                affixCounter++;
 
             if (addElemDamage >= Settings.WcToElemDamageSpell)
-                WcaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
-                    LogMessage("# of Affixes:" + WcaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
             }
-            return WcaffixCounter >= Settings.WcAffixes;
+            return affixCounter >= Settings.AmountAffixes;
         } 
         #endregion
         #region Weapon Attack
         private bool AnalyzeWeaponAttack(Entity item)
         {
-            int WaaffixCounter = 0;
+            int affixCounter = 1;
 
             var component = item.GetComponent<Weapon>();
             var mods = item.GetComponent<Mods>().ItemMods;
@@ -1128,35 +1042,35 @@ namespace InventoryItemsAnalyzer
             float phyDmg = (component.DamageMin + component.DamageMax) / 2f + mods.GetAverageStatValue("LocalAddedPhysicalDamage");
             phyDmg *= 1f + (mods.GetStatValue("LocalIncreasedPhysicalDamagePercent") + 20) / 100f;
             if (phyDmg >= Settings.WaPhysDmg)
-                WaaffixCounter++;
+                affixCounter++;
 
             float elemDmg = mods.GetAverageStatValue("LocalAddedColdDamage") + mods.GetAverageStatValue("LocalAddedFireDamage")
                             + mods.GetAverageStatValue("LocalAddedLightningDamage");
             if (elemDmg >= Settings.WaElemDmg)
-                WaaffixCounter++;
+                affixCounter++;
 
             float attackSpeed = 1f / (component.AttackTime / 1000f);
             attackSpeed *= 1f + mods.GetStatValue("LocalIncreasedAttackSpeed") / 100f;
             var dps = (phyDmg + elemDmg) * attackSpeed;
             if (dps >= Settings.WaDps)
-                WaaffixCounter++;
+                affixCounter++;
 
             float critChance = component.CritChance / 100f;
             critChance *= 1f + mods.GetStatValue("LocalCriticalStrikeChance") / 100f;
             if (critChance >= Settings.WaCritChance)
-                WaaffixCounter++;
+                affixCounter++;
 
             var critMulti = 1f + mods.GetStatValue("LocalCriticalMultiplier") / 100f;
             if (critMulti >= Settings.WaCritMulti)
-                WaaffixCounter++;
+                affixCounter++;
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
                     LogMessage(component, 10f);
-                    LogMessage("# of Affixes:" + WaaffixCounter, 10f);
+                    LogMessage("# of Affixes:" + affixCounter, 10f);
 
             }
-            return WaaffixCounter >= Settings.WaAffixes;
+            return affixCounter >= Settings.AmountAffixes;
         }
         #endregion
         

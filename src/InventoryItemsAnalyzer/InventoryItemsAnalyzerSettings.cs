@@ -7,12 +7,11 @@ namespace InventoryItemsAnalyzer
     {
         public InventoryItemsAnalyzerSettings()
         {
-            //Defualts
+            //Defaults
             #region Enable/Additional Settings
             Enable = false;
             HideUnderMouse = true;
             StarOrBorder = true;
-            AmountAffixes = new RangeNode<float>(2, 0, 5);
             Color = new ColorBGRA(255, 215, 0, 255);
             DebugMode = false;
             #endregion
@@ -23,6 +22,7 @@ namespace InventoryItemsAnalyzer
             BaEnergyShield = new RangeNode<int>(2, 1, 5);
             BaStrength = new RangeNode<float>(40, 30, 55);
             BaIntelligence = new RangeNode<float>(40, 30, 55);
+            BaAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Helmet
             Helmet = true;
@@ -31,6 +31,7 @@ namespace InventoryItemsAnalyzer
             HTotalRes = new RangeNode<float>(80, 60, 100);
             HAccuracy = new RangeNode<float>(300, 200, 400);
             HIntelligence = new RangeNode<float>(40, 30, 55);
+            HAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Gloves
             Gloves = true;
@@ -39,7 +40,9 @@ namespace InventoryItemsAnalyzer
             GEnergyShield = new RangeNode<int>(2, 1, 5);
             GAccuracy = new RangeNode<float>(300, 200, 400);
             GAttackSpeed = new RangeNode<float>(10, 7, 16);
+            GPhysDamage = new RangeNode<float>(4, 2, 10);
             GDexterity = new RangeNode<float>(40, 30, 55);
+            GAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Boots
             Boots = true;
@@ -49,6 +52,7 @@ namespace InventoryItemsAnalyzer
             BStrength = new RangeNode<float>(40, 30, 55);
             BIntelligence = new RangeNode<float>(40, 30, 55);
             BMoveSpeed = new RangeNode<float>(20, 0, 50);
+            BAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Belts
             Belt = true;
@@ -58,6 +62,7 @@ namespace InventoryItemsAnalyzer
             BeStrength = new RangeNode<float>(35, 25, 55);
             BeArmour = new RangeNode<int>(280, 200, 400);
             BeWeaponElemDamage = new RangeNode<float>(30, 20, 40);
+            BeAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Rings
             Ring = true;
@@ -72,6 +77,7 @@ namespace InventoryItemsAnalyzer
             RIncRarity = new RangeNode<float>(25, 20, 30);
             RAttackSpeed = new RangeNode<float>(5, 0, 20);
             RCastSpped = new RangeNode<float>(5, 0, 20);
+            RAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Amulets
             Amulet = true;
@@ -87,6 +93,7 @@ namespace InventoryItemsAnalyzer
             ACritMult = new RangeNode<float>(30, 20, 40);
             ACritChance = new RangeNode<float>(30, 20, 40);
             ATotalElemSpellDmg = new RangeNode<float>(30, 20, 40);
+            AAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Shields
             Shield = true;
@@ -97,6 +104,7 @@ namespace InventoryItemsAnalyzer
             SIntelligence = new RangeNode<float>(35, 25, 55);
             SSpellDamage = new RangeNode<float>(55, 40, 80);
             SSpellCritChance = new RangeNode<float>(80, 60, 110);
+            SAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Weapons Caster
             WeaponCaster = true;
@@ -104,6 +112,7 @@ namespace InventoryItemsAnalyzer
             WcSpellCritChance = new RangeNode<float>(130, 100, 150);
             WcToElemDamageSpell = new RangeNode<float>(50, 30, 90);
             WcCritMult = new RangeNode<float>(30, 20, 40);
+            WcAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
             #region Weapons Attack
             WeaponAttack = true;
@@ -111,7 +120,8 @@ namespace InventoryItemsAnalyzer
             WaCritChance = new RangeNode<float>(30, 20, 40);
             WaCritMulti = new RangeNode<float>(30, 20, 40);
             WaElemDmg = new RangeNode<float>(130, 100, 300);
-            WaDps = new RangeNode<float>(300, 200, 500); 
+            WaDps = new RangeNode<float>(300, 200, 500);
+            WaAffixes = new RangeNode<float>(2, 0, 5);
             #endregion
         }
         //Get Set
@@ -122,6 +132,7 @@ namespace InventoryItemsAnalyzer
         public RangeNode<float> BaTotalRes { get; set; }
         public RangeNode<float> BaStrength { get; set; }
         public RangeNode<float> BaIntelligence { get; set; }
+        public RangeNode<float> BaAffixes { get; set; }
         #endregion
         #region Helmet
         public ToggleNode Helmet { get; set; }
@@ -130,24 +141,28 @@ namespace InventoryItemsAnalyzer
         public RangeNode<float> HTotalRes { get; set; }
         public RangeNode<float> HAccuracy { get; set; }
         public RangeNode<float> HIntelligence { get; set; }
+        public RangeNode<float> HAffixes { get; set; }
         #endregion
         #region Gloves
-       public ToggleNode Gloves { get; set; }
+        public ToggleNode Gloves { get; set; }
         public RangeNode<float> GLife { get; set; }
         public RangeNode<int> GEnergyShield { get; set; }
         public RangeNode<float> GTotalRes { get; set; }
         public RangeNode<float> GAccuracy { get; set; }
         public RangeNode<float> GAttackSpeed { get; set; }
+        public RangeNode<float> GPhysDamage { get; set; }
         public RangeNode<float> GDexterity { get; set; }
+        public RangeNode<float> GAffixes { get; set; }
         #endregion
         #region Boots
-       public ToggleNode Boots { get; set; }
+        public ToggleNode Boots { get; set; }
         public RangeNode<float> BLife { get; set; }
         public RangeNode<int> BEnergyShield { get; set; }
         public RangeNode<float> BTotalRes { get; set; }
         public RangeNode<float> BStrength { get; set; }
         public RangeNode<float> BMoveSpeed { get; set; }
         public RangeNode<float> BIntelligence { get; set; }
+        public RangeNode<float> BAffixes { get; set; }
         #endregion  
         #region Belt
         public ToggleNode Belt { get; set; }
@@ -157,6 +172,7 @@ namespace InventoryItemsAnalyzer
         public RangeNode<float> BeStrength { get; set; }
         public RangeNode<int> BeArmour { get; set; }
         public RangeNode<float> BeWeaponElemDamage { get; set; }
+        public RangeNode<float> BeAffixes { get; set; }
         //        [Menu("Other Flask Suffix", 67, 60)]
         //        public RangeNode<int> BeFlaskSuffix { get; set; }
         #endregion
@@ -173,6 +189,7 @@ namespace InventoryItemsAnalyzer
         public RangeNode<float> RIncRarity { get; set; }
         public RangeNode<float> RAttackSpeed { get; set; }
         public RangeNode<float> RCastSpped { get; set; }
+        public RangeNode<float> RAffixes { get; set; }
         #endregion
         #region Amulet
         public ToggleNode Amulet { get; set; }
@@ -188,6 +205,7 @@ namespace InventoryItemsAnalyzer
         public RangeNode<float> ACritMult { get; set; }
         public RangeNode<float> ACritChance { get; set; }
         public RangeNode<float> ATotalElemSpellDmg { get; set; }
+        public RangeNode<float> AAffixes { get; set; }
         #endregion
         #region Shield
         public ToggleNode Shield { get; set; }
@@ -198,13 +216,15 @@ namespace InventoryItemsAnalyzer
         public RangeNode<float> SIntelligence { get; set; }
         public RangeNode<float> SSpellDamage { get; set; }
         public RangeNode<float> SSpellCritChance { get; set; }
+        public RangeNode<float> SAffixes { get; set; }
         #endregion
         #region Caster Dagger/Wand/Sceptre
         public ToggleNode WeaponCaster { get; set; }
         public RangeNode<float> WcTotalElemSpellDmg { get; set; }
         public RangeNode<float> WcToElemDamageSpell { get; set; }
-       public RangeNode<float> WcSpellCritChance { get; set; }
-       public RangeNode<float> WcCritMult { get; set; }
+        public RangeNode<float> WcSpellCritChance { get; set; }
+        public RangeNode<float> WcCritMult { get; set; }
+        public RangeNode<float> WcAffixes { get; set; }
         #endregion
         #region Attack Thrusting/Dagger/Wand
         public ToggleNode WeaponAttack { get; set; }
@@ -213,9 +233,9 @@ namespace InventoryItemsAnalyzer
         public RangeNode<float> WaDps { get; set; }
         public RangeNode<float> WaCritChance { get; set; }
         public RangeNode<float> WaCritMulti { get; set; }
+        public RangeNode<float> WaAffixes { get; set; }
         #endregion
         #region Additional Menu Settings
-       public RangeNode<float> AmountAffixes { get; set; }
         public ToggleNode HideUnderMouse { get; set; }
         public ToggleNode StarOrBorder { get; set; }
         public ColorNode Color { get; set; }

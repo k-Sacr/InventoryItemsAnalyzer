@@ -676,7 +676,7 @@ namespace InventoryItemsAnalyzer
                     else
                         elemRes += mod.StatValue[0];
 
-                else if (mod.Record.Group == "Accuracy" && mod.StatValue[0] >= Settings.HAccuracy)
+                else if (mod.Record.Group == "IncreasedAccuracy" && mod.StatValue[0] >= Settings.HAccuracy)
                     HaffixCounter++;
 
                 else if (mod.Record.Group == "Intelligence" && mod.StatValue[0] >= Settings.HIntelligence)

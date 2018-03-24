@@ -748,8 +748,10 @@ namespace InventoryItemsAnalyzer
             //DEBUG TEST BLOCK
             {
                 if (Settings.DebugMode != false)
+                {
                     LogMessage(component, 10f);
                     LogMessage("# of Affixes:" + WaaffixCounter, 10f);
+                }
             }
             return WaaffixCounter >= Settings.WaAffixes;
         }

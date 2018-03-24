@@ -46,7 +46,8 @@ namespace InventoryItemsAnalyzer
             foreach (var child in _curInventRoot.Children)
             {
                 var item = child.AsObject<NormalInventoryItem>().Item;
-
+                if (item == null)
+                    continue;
 
                 var modsComponent = item?.GetComponent<Mods>();
                 if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false || string.IsNullOrEmpty(item.Path))

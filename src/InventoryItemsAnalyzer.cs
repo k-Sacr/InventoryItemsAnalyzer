@@ -27,10 +27,13 @@ namespace InventoryItemsAnalyzer
         private readonly string[] _nameAttrib = {"Intelligence", "Strength", "Dexterity"};
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
-        public InventoryItemsAnalyzer() { Name = "INV Item Analyzer"; }
+        public InventoryItemsAnalyzer() {  }
 
         public override bool Initialise()
         {
+            base.Initialise();
+
+            Name = "INV Item Analyzer";
             return true;
         }
 

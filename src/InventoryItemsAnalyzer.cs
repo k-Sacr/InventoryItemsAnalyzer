@@ -12,6 +12,8 @@ using ExileCore.PoEMemory.Elements.InventoryElements;
 using SharpDX;
 using System.Threading;
 using System.Windows.Forms;
+using System.IO;
+using System;
 
 namespace InventoryItemsAnalyzer
 {
@@ -19,19 +21,22 @@ namespace InventoryItemsAnalyzer
     {
         private List<RectangleF> _goodItemsPos;
         private List<RectangleF> _allItemsPos;
-        private List<RectangleF> _MBItems;
-        private List<RectangleF> _VeilItems;
+        private List<RectangleF> _highItemsPos;
+        private List<RectangleF> _VeilItemsPos;
         private Element _curInventRoot;
         private HoverItemIcon _currentHoverItem;
         private Vector2 _windowOffset;
         private readonly string[] _nameAttrib = {"Intelligence", "Strength", "Dexterity"};
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
+        private string[] GoodBaseTypes;
         public InventoryItemsAnalyzer() {  }
 
         public override bool Initialise()
         {
             base.Initialise();
+
+            ParseConfig_BaseType();
 
             Name = "INV Item Analyzer";
             return true;
@@ -39,7 +44,7 @@ namespace InventoryItemsAnalyzer
 
         public override void Render()
         {
-          if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible || GameController.Game.IngameState.IngameUi.OpenLeftPanel.IsVisible == true)
+          if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible || GameController.Game.IngameState.IngameUi.OpenLeftPanel.IsVisible)
             return;
 
             _windowOffset = GameController.Window.GetWindowRectangle().TopLeft;
@@ -52,26 +57,66 @@ namespace InventoryItemsAnalyzer
             ScanInventory();
         }
 
+        #region Load config
+
+        private void ParseConfig_BaseType()
+        {
+            string path = $"{DirectoryFullName}\\BaseType.txt";
+
+           CheckConfig(path);
+
+            using (StreamReader reader = new StreamReader(path) )
+            {
+                string text = reader.ReadToEnd();
+
+                GoodBaseTypes = text.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                reader.Close();
+            }
+        }
+
+        private void CheckConfig(string path)
+        {
+            if (File.Exists(path)) return;
+
+            // Tier 1-3 NeverSink
+            string text = "Opal Ring" + "\r\n"          + "Steel Ring" + "\r\n"         + "Vermillion Ring" + "\r\n"    + "Blue Pearl Amulet" + "\r\n"      + "Bone Helmet" + "\r\n" +
+                          "Cerulean Ring" + "\r\n"      + "Convoking Wand" + "\r\n"     + "Crystal Belt" + "\r\n"       + "Fingerless Silk Gloves" + "\r\n" + "Gripped Gloves" + "\r\n" +
+                          "Marble Amulet" + "\r\n"      + "Sacrificial Garb" + "\r\n"   + "Spiked Gloves" + "\r\n"      + "Stygian Vise" + "\r\n"           + "Two-Toned Boots" + "\r\n" +
+                          "Vanguard Belt" + "\r\n"      + "Diamond Ring" + "\r\n"       + "Onyx Amulet" + "\r\n"        + "Two-Stone Ring" + "\r\n"         + "Colossal Tower Shield"  + "\r\n" + 
+                          "Eternal Burgonet" + "\r\n"   + "Hubris Circlet" + "\r\n"     + "Lion Pelt" + "\r\n"          + "Sorcerer Boots" + "\r\n"         + "Sorcerer Gloves" + "\r\n" + 
+                          "Titanium Spirit Shield" + "\r\n" + "Vaal Regalia" + "\r\n";
+
+
+            using (StreamWriter streamWriter = new StreamWriter(path, true))
+            {
+                streamWriter.Write(text);
+                streamWriter.Close();
+            }
+        }
+
+        #endregion
+
         #region Scan Inventory
-        private void ScanInventory()
+            private void ScanInventory()
         {
             if (_curInventRoot == null)
                 return;
 
             _goodItemsPos = new List<RectangleF>();
             _allItemsPos = new List<RectangleF>();
-            _MBItems = new List<RectangleF>();
-            _VeilItems = new List<RectangleF>();
+            _highItemsPos = new List<RectangleF>();
+            _VeilItemsPos = new List<RectangleF>();
 
             foreach (var child in _curInventRoot.Children)
             {
-                bool f = false;
+                bool HighItemLevel = false;
                 var item = child.AsObject<NormalInventoryItem>().Item;
                 if (item == null)
                     continue;
 
                 var modsComponent = item?.GetComponent<Mods>();
-                var baseComponent = item?.GetComponent<Base>();
+                
                 if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false || string.IsNullOrEmpty(item.Path))
                     continue;
                 List<ItemMod> itemMods = modsComponent.ItemMods;
@@ -80,10 +125,15 @@ namespace InventoryItemsAnalyzer
                         it => new ModValue(it, GameController.Files, modsComponent.ItemLevel, GameController.Files.BaseItemTypes.Translate(item.Path))
                     ).ToList();
 
-                if (modsComponent.ItemLevel >= Settings.ItemLevel || modsComponent.Synthesised == true || baseComponent.isElder == true || baseComponent.isShaper == true)
+                #region Elder or Shaper
                 {
-                    f = true;
+                    var baseComponent = item?.GetComponent<Base>();
+                    if (modsComponent.ItemLevel >= Settings.ItemLevel_ElderOrShaper && (baseComponent.isElder || baseComponent.isShaper))
+                    {
+                        HighItemLevel = true;
+                    }
                 }
+                #endregion
 
                 var drawRect = child.GetClientRect();
                 //fix star position
@@ -94,22 +144,37 @@ namespace InventoryItemsAnalyzer
                 drawRectAll.X -= 5;
                 drawRectAll.Y -= 5;
 
-
                 BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item.Path);
+
+                #region Item Level
+                {
+                    if (modsComponent.ItemLevel >= Settings.ItemLevel_BaseType)
+                    {
+                        foreach (string BaseType in GoodBaseTypes)
+                        {
+                            if (bit.BaseName == BaseType)
+                            {
+                                HighItemLevel = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                #endregion
 
                 int count;
 
                 switch (bit?.ClassName)
                 {
                     case "Body Armour":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeBodyArmour(mods);
                         if ((count >= Settings.BaAffixes) && Settings.BodyArmour)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -122,14 +187,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Quiver":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeQuiver(mods);
                         if ((count >= Settings.QAffixes) && Settings.Quiver)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -141,14 +206,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Helmet":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeHelmet(mods);
                         if ((count >= Settings.HAffixes) && Settings.Helmet)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -160,14 +225,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Boots":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeBoots(mods);
                         if ((count >= Settings.BAffixes) && Settings.Boots)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -179,7 +244,7 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Gloves":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         if (AnalyzeGloves(mods) && Settings.Gloves)
                             _goodItemsPos.Add(drawRect);
@@ -188,14 +253,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Shield":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeShield(mods);
                         if ((count >= Settings.SAffixes) && Settings.Shield)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -207,14 +272,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Belt":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeBelt(mods);
                         if ((count >= Settings.BeAffixes) && Settings.Belt)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -226,14 +291,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Ring":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeRing(mods);
                         if ((count >= Settings.RAffixes) && Settings.Ring)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -245,14 +310,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Amulet":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeAmulet(mods);
                         if ((count >= Settings.AAffixes) && Settings.Amulet)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -264,14 +329,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Dagger":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -285,14 +350,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Rune Dagger":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -306,14 +371,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Wand":
-                        if (f) _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -327,15 +392,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Sceptre":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -347,15 +411,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Thrusting One Hand Sword":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -369,15 +432,14 @@ namespace InventoryItemsAnalyzer
                         break;   
                         
                     case "Staff":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -389,15 +451,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Warstaff":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -409,15 +470,14 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Claw":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -430,15 +490,14 @@ namespace InventoryItemsAnalyzer
                            _allItemsPos.Add(drawRectAll);
                         break;
                     case "One Hand Sword":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -451,15 +510,14 @@ namespace InventoryItemsAnalyzer
                            _allItemsPos.Add(drawRectAll);
                         break;
                     case "Two Hand Sword":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -472,15 +530,14 @@ namespace InventoryItemsAnalyzer
                            _allItemsPos.Add(drawRectAll);
                         break;
                     case "One Hand Axe":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -493,15 +550,14 @@ namespace InventoryItemsAnalyzer
                            _allItemsPos.Add(drawRectAll);
                         break;
                     case "Two Hand Axe":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -514,15 +570,14 @@ namespace InventoryItemsAnalyzer
                            _allItemsPos.Add(drawRectAll);
                         break;
                     case "One Hand Mace":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -535,15 +590,14 @@ namespace InventoryItemsAnalyzer
                            _allItemsPos.Add(drawRectAll);
                         break;
                     case "Two Hand Mace":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -556,15 +610,14 @@ namespace InventoryItemsAnalyzer
                            _allItemsPos.Add(drawRectAll);
                         break;
                     case "Bow":
-                        if (f)
-                            _MBItems.Add(drawRectAll);
+                        if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
                         count = AnalyzeWeaponCaster(mods);
                         if ((count >= Settings.WcAffixes) && Settings.WeaponCaster)
                         {
                             if (count >= 100)
                             {
-                                _VeilItems.Add(drawRect);
+                                _VeilItemsPos.Add(drawRect);
                             }
                             else
                             {
@@ -581,66 +634,56 @@ namespace InventoryItemsAnalyzer
 
             if (!Settings.HideUnderMouse)
             {
-                DrawСomet(_VeilItems);
-                DrawStar(_goodItemsPos);
-                DrawMB(_MBItems);
+                DrawSyndicateItems(_VeilItemsPos);
+                DrawGoodItems(_goodItemsPos);
+                DrawHighItemLevel(_highItemsPos);
                 ClickShit(_allItemsPos);
             }
             else if (_currentHoverItem.Item == null)
             {
-                DrawСomet(_VeilItems);
-                DrawStar(_goodItemsPos);
-                DrawMB(_MBItems);
+                DrawSyndicateItems(_VeilItemsPos);
+                DrawGoodItems(_goodItemsPos);
+                DrawHighItemLevel(_highItemsPos);
                 ClickShit(_allItemsPos);
             }
         }
         #endregion
 
-        #region DrawMB
+        #region DrawHighItemLevel
 
-        private void DrawMB(List<RectangleF> MBItems)
+        private void DrawHighItemLevel(List<RectangleF> HighItemLevel)
         {
-            foreach (var position in MBItems)
+            foreach (var position in HighItemLevel)
             {
                 if (Settings.StarOrBorder)
                 {
                     RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = position.Width - 6, Height = position.Height - 6 };
                     Graphics.DrawFrame(border, Settings.ColorAll, 1);
                 }
-                else
-                {
-                    RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = position.Width - 6, Height = position.Height - 6 };
-                    Graphics.DrawFrame(border, Settings.ColorAll, 3);
-                }
             }
         }
 
         #endregion
 
-        #region Draw Star/Rec
-        private void DrawStar(List<RectangleF> goodItems)
+        #region Draw GoodItems
+        private void DrawGoodItems(List<RectangleF> goodItems)
         {
             foreach (var position in goodItems)
                 if (Settings.StarOrBorder)
-                    Graphics.DrawText(" Good item ", position.TopLeft, Settings.Color, 30);
-                else
                 {
-                    RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = position.Width - 6, Height = position.Height - 6 };
-                    Graphics.DrawFrame(border, Settings.Color, 3);
+                    Graphics.DrawText(" Good item ", position.TopLeft, Settings.Color, 30);
+
+                    //RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = position.Width - 6, Height = position.Height - 6 };
+                    //Graphics.DrawImage($"{DirectoryFullName}\\img\\GoodItem.png", border);
                 }
         }
         #endregion
 
-        #region Draw Сomet/Rec
-        private void DrawСomet(List<RectangleF> goodItems)
+        #region Draw Syndicate items
+        private void DrawSyndicateItems(List<RectangleF> SyndicateItems)
         {
-            foreach (var position in goodItems)
+            foreach (var position in SyndicateItems)
                 if (Settings.StarOrBorder) Graphics.DrawText(" Syndicate ", position.TopLeft, Settings.Color, 30);
-                else
-                {
-                    RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = position.Width - 6, Height = position.Height - 6 };
-                    Graphics.DrawFrame(border, Settings.Color, 3);
-                }
         }
         #endregion
 

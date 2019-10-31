@@ -30,6 +30,7 @@ namespace InventoryItemsAnalyzer
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
         private string[] GoodBaseTypes;
+        int CountInventory = 0;
         public InventoryItemsAnalyzer() {  }
 
         public override bool Initialise()
@@ -44,15 +45,43 @@ namespace InventoryItemsAnalyzer
 
         public override void Render()
         {
-          if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible || GameController.Game.IngameState.IngameUi.OpenLeftPanel.IsVisible)
-            return;
+            if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible || GameController.Game.IngameState.IngameUi.OpenLeftPanel.IsVisible) return;
+
+            if (GameController.Game.IngameState.UIHover.Address == 0)
+            {
+                CountInventory = 0;
+
+                return;
+            }
 
             _windowOffset = GameController.Window.GetWindowRectangle().TopLeft;
+
             _currentHoverItem = GameController.Game.IngameState.UIHover.AsObject<HoverItemIcon>();
 
             if (_currentHoverItem.ToolTipType == ToolTipType.InventoryItem && _currentHoverItem.Item != null)
             {
                 _curInventRoot = _currentHoverItem.Parent;
+
+                if (_curInventRoot == null)
+                    return;
+
+                if (CountInventory != _curInventRoot.Children.Count)
+                {
+                    CountInventory = _curInventRoot.Children.Count;
+                }
+                else
+                {
+                    if (!Settings.HideUnderMouse)
+                    {
+                        DrawSyndicateItems(_VeilItemsPos);
+                        DrawGoodItems(_goodItemsPos);
+                        DrawHighItemLevel(_highItemsPos);
+                        ClickShit(_allItemsPos);
+                    }
+
+                    return;
+                }
+    
             }
             ScanInventory();
         }
@@ -99,9 +128,7 @@ namespace InventoryItemsAnalyzer
 
         #region Scan Inventory
             private void ScanInventory()
-        {
-            if (_curInventRoot == null)
-                return;
+            {
 
             _goodItemsPos = new List<RectangleF>();
             _allItemsPos = new List<RectangleF>();
@@ -119,6 +146,9 @@ namespace InventoryItemsAnalyzer
                 
                 if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false || string.IsNullOrEmpty(item.Path))
                     continue;
+
+
+
                 List<ItemMod> itemMods = modsComponent.ItemMods;
                 List<ModValue> mods =
                     itemMods.Select(
@@ -639,13 +669,6 @@ namespace InventoryItemsAnalyzer
                 DrawHighItemLevel(_highItemsPos);
                 ClickShit(_allItemsPos);
             }
-            else if (_currentHoverItem.Item == null)
-            {
-                DrawSyndicateItems(_VeilItemsPos);
-                DrawGoodItems(_goodItemsPos);
-                DrawHighItemLevel(_highItemsPos);
-                ClickShit(_allItemsPos);
-            }
         }
         #endregion
 
@@ -671,10 +694,10 @@ namespace InventoryItemsAnalyzer
             foreach (var position in goodItems)
                 if (Settings.StarOrBorder)
                 {
-                    Graphics.DrawText(" Good item ", position.TopLeft, Settings.Color, 30);
+                    Graphics.DrawText(@" Good Item ", position.TopLeft, Settings.Color, 30);
 
                     //RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = position.Width - 6, Height = position.Height - 6 };
-                    //Graphics.DrawImage($"{DirectoryFullName}\\img\\GoodItem.png", border);
+                    //Graphics.DrawImage(@"C:\Users\admin\Desktop\GoodItem.png", border);
                 }
         }
         #endregion

@@ -31,6 +31,7 @@ namespace InventoryItemsAnalyzer
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
         private string[] GoodBaseTypes;
         int CountInventory = 0;
+
         public InventoryItemsAnalyzer() {  }
 
         public override bool Initialise()
@@ -40,6 +41,13 @@ namespace InventoryItemsAnalyzer
             ParseConfig_BaseType();
 
             Name = "INV Item Analyzer";
+
+            var combine = Path.Combine(DirectoryFullName, "img", "GoodItem.png").Replace('\\', '/');
+            Graphics.InitImage(combine, false);
+
+            combine = Path.Combine(DirectoryFullName, "img", "Syndicate.png").Replace('\\', '/');
+            Graphics.InitImage(combine, false);
+
             return true;
         }
 
@@ -274,13 +282,25 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Gloves":
+
                         if (HighItemLevel) _highItemsPos.Add(drawRectAll);
 
-                        if (AnalyzeGloves(mods) && Settings.Gloves)
-                            _goodItemsPos.Add(drawRect);
+                        count = AnalyzeGloves(mods);
+                        if ((count >= Settings.GAffixes) && Settings.Gloves)
+                        {
+                            if (count >= 100)
+                            {
+                                _VeilItemsPos.Add(drawRect);
+                            }
+                            else
+                            {
+                                _goodItemsPos.Add(drawRect);
+                            }
+                        }
                         else
-                           _allItemsPos.Add(drawRectAll);
+                            _allItemsPos.Add(drawRectAll);
                         break;
+
 
                     case "Shield":
                         if (HighItemLevel) _highItemsPos.Add(drawRectAll);
@@ -694,10 +714,11 @@ namespace InventoryItemsAnalyzer
             foreach (var position in goodItems)
                 if (Settings.StarOrBorder)
                 {
-                    Graphics.DrawText(@" Good Item ", position.TopLeft, Settings.Color, 30);
+                    //Graphics.DrawText(@" Good Item ", position.TopLeft, Settings.Color, 30);
 
-                    //RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = position.Width - 6, Height = position.Height - 6 };
-                    //Graphics.DrawImage(@"C:\Users\admin\Desktop\GoodItem.png", border);
+                    RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = (position.Width - 6) / 1.5f, Height = (position.Height - 6) / 1.5f };
+    
+                    Graphics.DrawImage("GoodItem.png", border);
                 }
         }
         #endregion
@@ -706,8 +727,15 @@ namespace InventoryItemsAnalyzer
         private void DrawSyndicateItems(List<RectangleF> SyndicateItems)
         {
             foreach (var position in SyndicateItems)
-                if (Settings.StarOrBorder) Graphics.DrawText(" Syndicate ", position.TopLeft, Settings.Color, 30);
-        }
+                if (Settings.StarOrBorder)
+                {
+                    //Graphics.DrawText(@" Syndicate ", position.TopLeft, Settings.Color, 30);
+
+                    RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = (position.Width - 6) / 1.5f, Height = (position.Height - 6) / 1.5f };
+
+                    Graphics.DrawImage("Syndicate.png", border);
+                }
+        }       
         #endregion
 
         #region ClickShit
@@ -870,7 +898,7 @@ namespace InventoryItemsAnalyzer
         }
         #endregion
         #region Gloves
-        private bool AnalyzeGloves(List<ModValue> mods)
+        private int AnalyzeGloves(List<ModValue> mods)
         {
             int GaffixCounter = 0;
             int elemRes = 0;
@@ -923,9 +951,8 @@ namespace InventoryItemsAnalyzer
 
                 else if (mod.Record.Group.Contains("VeiledSuffix") || mod.Record.Group.Contains("VeiledPrefix"))
                 {
-                    GaffixCounter += 3;
+                    GaffixCounter += 100;
                 }
-
 
                 //DEBUG TEST BLOCK
                 {
@@ -940,7 +967,7 @@ namespace InventoryItemsAnalyzer
                 if (Settings.DebugMode != false)
                     LogMessage("# of Affixes:" + GaffixCounter, 10f);
             }
-            return GaffixCounter >= Settings.GAffixes;
+            return GaffixCounter;
         }
         #endregion
         #region Boots

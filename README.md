@@ -11,7 +11,7 @@ Remember, remove the old config file before updating to the newer version of thi
 ### In progress:
 (Move the mouse the item)
 
-![alt tag](https://imgur.com/a/RcLxbf3)
+![](https://imgur.com/a/RcLxbf3)
 
 Draws image for good/veiled item.
 Draws border for items with influence or good BaseType. You can set min ItemLevel for this.

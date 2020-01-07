@@ -1,16 +1,18 @@
 # InventoryItemsAnalyzer
-plugin "Inventory Items Analyzer" for PoEHUD
+plugin "Inventory Items Analyzer" for ExileApi.
 
-Remember, remove the old config file before updating to the newer version of this plugin. If not removed you may have issues with debug information showing when it is not ment to.
+Remember, remove the old config file before updating to the newer version of this plugin. You can find this in ...\PoeHelper\config\global\InventoryItemsAnalyzer_settings.json .
 
-## Demo
-### Config:
-
-![demo](https://cloud.githubusercontent.com/assets/18440948/23447267/65b9b70c-fe7c-11e6-97e4-435e284bdcf1.gif)
-
-
+### How to install:
+1. Download this.
+2. Unzip and put in ...\PoeHelper\Plugins\Compiled\
+3. Rename folder "InventoryItemsAnalyzer-master" to "InventoryItemsAnalyzer".
 
 ### In progress:
 (Move the mouse the item)
 
-![demo](https://cloud.githubusercontent.com/assets/18440948/23447266/65b76cf4-fe7c-11e6-9d77-84798fd92ceb.gif)
+![alt tag](https://imgur.com/a/RcLxbf3)
+
+Draws image for good/veiled item.
+Draws border for items with influence or good BaseType. You can set min ItemLevel for this.
+You can set hotkeys for autovendor trash items.

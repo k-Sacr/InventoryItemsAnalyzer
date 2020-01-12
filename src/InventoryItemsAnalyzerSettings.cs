@@ -22,6 +22,7 @@ namespace InventoryItemsAnalyzer
             ItemLevel_ElderOrShaper = new RangeNode<int>(84, 0, 100);
             ItemLevel_BaseType = new RangeNode<int>(84, 0, 100);
             DebugMode = new ToggleNode(false);
+            Text = new ToggleNode(false);
             #endregion
             #region BodyArmour
             BodyArmour = new ToggleNode(true);
@@ -524,11 +525,14 @@ namespace InventoryItemsAnalyzer
         [Menu("Text or Border", parentIndex = 100, Tooltip = "Display a text or border around the filtered item")]
         public ToggleNode StarOrBorder { get; set; }
 
-        [Menu("Text Color", parentIndex = 100, Tooltip = "Display color of star on or border around the Syndicate item")]
+        [Menu("Text Color", parentIndex = 100, Tooltip = "Display color of star on or border around the Syndicate item/Good item")]
         public ColorNode Color { get; set; }
 
         [Menu("Frame Color", parentIndex = 100, Tooltip = "Display color of star on or border around the Shaper/Elder/ItemLevel")]
         public ColorNode ColorAll { get; set; }
+
+        [Menu("Text instead of image", parentIndex = 100, Tooltip = "Replaces an image with text")]
+        public ToggleNode Text { get; set; }
 
         [Menu("Debug Mode", parentIndex = 100, Tooltip = "Enable debug mode to report collected information about items")]
         public ToggleNode DebugMode { get; set; }

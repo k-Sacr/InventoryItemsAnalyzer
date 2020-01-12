@@ -714,11 +714,16 @@ namespace InventoryItemsAnalyzer
             foreach (var position in goodItems)
                 if (Settings.StarOrBorder)
                 {
-                    //Graphics.DrawText(@" Good Item ", position.TopLeft, Settings.Color, 30);
-
                     RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = (position.Width - 6) / 1.5f, Height = (position.Height - 6) / 1.5f };
     
-                    Graphics.DrawImage("GoodItem.png", border);
+                    if (!Settings.Text)
+                    {
+                        Graphics.DrawImage("GoodItem.png", border);
+                    }
+                    else
+                    {
+                        Graphics.DrawText(@" Good Item ", position.TopLeft, Settings.Color, 30);
+                    }
                 }
         }
         #endregion
@@ -729,11 +734,17 @@ namespace InventoryItemsAnalyzer
             foreach (var position in SyndicateItems)
                 if (Settings.StarOrBorder)
                 {
-                    //Graphics.DrawText(@" Syndicate ", position.TopLeft, Settings.Color, 30);
-
                     RectangleF border = new RectangleF { X = position.X + 8, Y = position.Y + 8, Width = (position.Width - 6) / 1.5f, Height = (position.Height - 6) / 1.5f };
 
-                    Graphics.DrawImage("Syndicate.png", border);
+                    if(!Settings.Text)
+                    {
+                        Graphics.DrawImage("Syndicate.png", border);
+                    }
+                    else
+                    {
+                        Graphics.DrawText(@" Syndicate ", position.TopLeft, Settings.Color, 30);
+                    }
+
                 }
         }       
         #endregion

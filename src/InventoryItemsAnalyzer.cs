@@ -23,16 +23,19 @@ namespace InventoryItemsAnalyzer
         private List<RectangleF> _allItemsPos;
         private List<RectangleF> _highItemsPos;
         private List<RectangleF> _VeilItemsPos;
-        private Element _curInventRoot;
-        private HoverItemIcon _currentHoverItem;
         private Vector2 _windowOffset;
+        private IngameState _ingameState;
         private readonly string[] _nameAttrib = {"Intelligence", "Strength", "Dexterity"};
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
         private string[] GoodBaseTypes;
         int CountInventory = 0;
+        int idenf = 0;
 
-        public InventoryItemsAnalyzer() {  }
+        public InventoryItemsAnalyzer() 
+        { 
+
+        }
 
         public override bool Initialise()
         {
@@ -48,50 +51,41 @@ namespace InventoryItemsAnalyzer
             combine = Path.Combine(DirectoryFullName, "img", "Syndicate.png").Replace('\\', '/');
             Graphics.InitImage(combine, false);
 
+            _ingameState = GameController.Game.IngameState;
+            _windowOffset = GameController.Window.GetWindowRectangle().TopLeft;
+
             return true;
         }
 
         public override void Render()
         {
-            if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible || GameController.Game.IngameState.IngameUi.OpenLeftPanel.IsVisible) return;
-
-            if (GameController.Game.IngameState.UIHover.Address == 0)
+            if (!_ingameState.IngameUi.InventoryPanel.IsVisible)
             {
                 CountInventory = 0;
-
+                idenf = 0;
                 return;
             }
 
-            _windowOffset = GameController.Window.GetWindowRectangle().TopLeft;
+            var normalInventoryItems = _ingameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory].VisibleInventoryItems;
 
-            _currentHoverItem = GameController.Game.IngameState.UIHover.AsObject<HoverItemIcon>();
+            int temp = normalInventoryItems.Where(t => t.Item?.GetComponent<Mods>()?.Identified == true).Count();
 
-            if (_currentHoverItem.ToolTipType == ToolTipType.InventoryItem && _currentHoverItem.Item != null)
+            //LogMessage(normalInventoryItems.Count.ToString() + " " + CountInventory.ToString() + " // " + temp .ToString() + " " + idenf.ToString(), 3f);
+
+            if (normalInventoryItems.Count != CountInventory || temp != idenf)
             {
-                _curInventRoot = _currentHoverItem.Parent;
-
-                if (_curInventRoot == null)
-                    return;
-
-                if (CountInventory != _curInventRoot.Children.Count)
-                {
-                    CountInventory = _curInventRoot.Children.Count;
-                }
-                else
-                {
-                    if (!Settings.HideUnderMouse)
-                    {
-                        DrawSyndicateItems(_VeilItemsPos);
-                        DrawGoodItems(_goodItemsPos);
-                        DrawHighItemLevel(_highItemsPos);
-                        ClickShit(_allItemsPos);
-                    }
-
-                    return;
-                }
-    
+                ScanInventory(normalInventoryItems);
+                CountInventory = normalInventoryItems.Count;
+                idenf = temp;
             }
-            ScanInventory();
+
+            if (!Settings.HideUnderMouse)
+            {
+                DrawSyndicateItems(_VeilItemsPos);
+                DrawGoodItems(_goodItemsPos);
+                DrawHighItemLevel(_highItemsPos);
+                ClickShit(_allItemsPos);
+            }
         }
 
         #region Load config
@@ -135,7 +129,7 @@ namespace InventoryItemsAnalyzer
         #endregion
 
         #region Scan Inventory
-            private void ScanInventory()
+            private void ScanInventory(IList<NormalInventoryItem> normalInventoryItems)
             {
 
             _goodItemsPos = new List<RectangleF>();
@@ -143,10 +137,10 @@ namespace InventoryItemsAnalyzer
             _highItemsPos = new List<RectangleF>();
             _VeilItemsPos = new List<RectangleF>();
 
-            foreach (var child in _curInventRoot.Children)
+            foreach (var normalInventoryItem in normalInventoryItems)
             {
                 bool HighItemLevel = false;
-                var item = child.AsObject<NormalInventoryItem>().Item;
+                var item = normalInventoryItem.Item;
                 if (item == null)
                     continue;
 
@@ -157,10 +151,7 @@ namespace InventoryItemsAnalyzer
 
                 List<ItemMod> itemMods = modsComponent.ItemMods;
 
-                foreach (ItemMod im in itemMods)
-                {
-                    if (!GameController.Files.Mods.records.ContainsKey(im.RawName)) return;
-                }
+                //foreach (ItemMod im in itemMods) if (!GameController.Files.Mods.records.ContainsKey(im.RawName)) return;
 
                 List<ModValue> mods =
                     itemMods.Select(
@@ -177,12 +168,12 @@ namespace InventoryItemsAnalyzer
                 }
                 #endregion
 
-                var drawRect = child.GetClientRect();
+                var drawRect = normalInventoryItem.GetClientRect();
                 //fix star position
                 drawRect.X -= 5;
                 drawRect.Y -= 5;
 
-                var drawRectAll = child.GetClientRect();
+                var drawRectAll = normalInventoryItem.GetClientRect();
                 drawRectAll.X -= 5;
                 drawRectAll.Y -= 5;
 
@@ -684,14 +675,6 @@ namespace InventoryItemsAnalyzer
                            _allItemsPos.Add(drawRectAll);
                         break;
                 }
-            }
-
-            if (!Settings.HideUnderMouse)
-            {
-                DrawSyndicateItems(_VeilItemsPos);
-                DrawGoodItems(_goodItemsPos);
-                DrawHighItemLevel(_highItemsPos);
-                ClickShit(_allItemsPos);
             }
         }
         #endregion

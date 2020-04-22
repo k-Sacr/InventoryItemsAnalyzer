@@ -30,7 +30,8 @@ namespace InventoryItemsAnalyzer
         private readonly string[] _nameAttrib = {"Intelligence", "Strength", "Dexterity"};
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
-        private string[] GoodBaseTypes;
+        private List<string> GoodBaseTypes;
+        private List<string> GoodUniquesList;
         int CountInventory = 0;
         int idenf = 0;
         private Coroutine CoroutineWorker;
@@ -47,6 +48,8 @@ namespace InventoryItemsAnalyzer
 
             ParseConfig_BaseType();
 
+            ParseConfig_Unique();            
+            
             Name = "INV Item Analyzer";
 
             var combine = Path.Combine(DirectoryFullName, "img", "GoodItem.png").Replace('\\', '/');
@@ -77,7 +80,7 @@ namespace InventoryItemsAnalyzer
 
             var normalInventoryItems = _ingameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory].VisibleInventoryItems;
 
-            int temp = normalInventoryItems.Where(t => t.Item?.GetComponent<Mods>()?.Identified == true).Count();
+            int temp = normalInventoryItems.Count(t => t.Item?.GetComponent<Mods>()?.Identified == true);
 
             //LogMessage(normalInventoryItems.Count.ToString() + " " + CountInventory.ToString() + " // " + temp .ToString() + " " + idenf.ToString(), 3f);
 
@@ -107,19 +110,19 @@ namespace InventoryItemsAnalyzer
         {
             string path = $"{DirectoryFullName}\\BaseType.txt";
 
-           CheckConfig(path);
+           CheckGoodBase(path);
 
             using (StreamReader reader = new StreamReader(path) )
             {
                 string text = reader.ReadToEnd();
 
-                GoodBaseTypes = text.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                GoodBaseTypes = text.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
                 reader.Close();
             }
         }
 
-        private void CheckConfig(string path)
+        private void CheckGoodBase(string path)
         {
             if (File.Exists(path)) return;
 
@@ -131,6 +134,185 @@ namespace InventoryItemsAnalyzer
                           "Eternal Burgonet" + "\r\n"   + "Hubris Circlet" + "\r\n"     + "Lion Pelt" + "\r\n"          + "Sorcerer Boots" + "\r\n"         + "Sorcerer Gloves" + "\r\n" + 
                           "Titanium Spirit Shield" + "\r\n" + "Vaal Regalia" + "\r\n";
 
+
+            using (StreamWriter streamWriter = new StreamWriter(path, true))
+            {
+                streamWriter.Write(text);
+                streamWriter.Close();
+            }
+        }
+        
+        private void ParseConfig_Unique()
+        {
+            string path = $"{DirectoryFullName}\\GoodUnique.txt";
+
+            CheckGoodUnique(path);
+
+            using (StreamReader reader = new StreamReader(path) )
+            {
+                string text = reader.ReadToEnd();
+
+                GoodBaseTypes = text.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                reader.Close();
+            }
+        }
+        
+        private void CheckGoodUnique(string path)
+        {
+            if (File.Exists(path)) 
+                return;
+
+            GoodUniquesList = new List<string>
+            {
+                "Agnerod West",
+                "Ahkeli's Meadow",
+                "Ahkeli's Valley",
+                "Alpha's Howl",
+                "Arborix",
+                "Astramentis",
+                "Atziri's Disfavour",
+                "Atziri's Splendour",
+                "Beltimber Blade",
+                "Berek's Respite",
+                "Bisco's Collar",
+                "Bisco's Leash",
+                "Brain Rattler",
+                "Briskwrap",
+                "Brutal Restraint",
+                "Bubonic Trail",
+                "Carcass Jack",
+                "Chaber Cairn",
+                "Chains of Command",
+                "Circle of Anguish",
+                "Circle of Guilt",
+                "Cloak of Defiance",
+                "Cloak of Tawm'r Isley",
+                "Corona Solaris",
+                "Coward's Chains",
+                "Craiceann's Carapace",
+                "Crown of the Tyrant",
+                "Daresso's Defiance",
+                "Darkscorn",
+                "Death's Harp",
+                "Death's Opus",
+                "Divinarius",
+                "Doedre's Skin",
+                "Doomsower",
+                "Dreadbeak",
+                "Dying Sun",
+                "Elegant Hubris",
+                "Energy From Within",
+                "Fenumus' Shroud",
+                "Fenumus' Spinnerets",
+                "Frostferno",
+                "Garb of the Ephemeral",
+                "Garukhan's Flight",
+                "Geofri's Legacy",
+                "Geofri's Sanctuary",
+                "Glorious Vanity",
+                "Goldwyrm",
+                "Greedtrap",
+                "Grelwood Shank",
+                "Grip of the Council",
+                "Gruthkul's Pelt",
+                "Hands of the High Templar",
+                "Healthy Mind",
+                "Hopeshredder",
+                "Hrimburn",
+                "Hyrri's Demise",
+                "Hyrri's Ire",
+                "Impresence",
+                "Inpulsa's Broken Heart",
+                "Kaom's Heart",
+                "Karui Charge",
+                "Kingmaker",
+                "Kintsugi",
+                "Kitava's Feast",
+                "Lethal Pride",
+                "Lioneye's Fall",
+                "Lioneye's Vision",
+                "Loreweave",
+                "Magna Eclipsis",
+                "Maligaro's Virtuosity",
+                "Mark of the Shaper",
+                "Marohi Erqi",
+                "Martyr of Innocence",
+                "Mask of the Spirit Drinker",
+                "Might of the Meek",
+                "Militant Faith",
+                "Mother's Embrace",
+                "Ngamahu's Flame",
+                "Null and Void",
+                "One With Nothing",
+                "Pledge of Hands",
+                "Precursor's Emblem",
+                "Presence of Chayula",
+                "Prism Guardian",
+                "Putembo's Meadow",
+                "Putembo's Valley",
+                "Queen of the Forest",
+                "Seven-League Step",
+                "Shade of Solaris",
+                "Shroud of the Lightless",
+                "Silverbough",
+                "Sin's Rebirth",
+                "Sire of Shards",
+                "Slivertongue",
+                "Solstice Vigil",
+                "Soul Taker",
+                "Sporeguard",
+                "Starforge",
+                "The Anima Stone",
+                "The Anticipation",
+                "The Blue Nightmare",
+                "The Coming Calamity",
+                "The Dancing Duo",
+                "The Devouring Diadem",
+                "The Effigon",
+                "The Enmity Divine",
+                "The Goddess Scorned",
+                "The Green Dream",
+                "The Gryphon",
+                "The Iron Fortress",
+                "The Pariah",
+                "The Poet's Pen",
+                "The Primordial Chain",
+                "The Queen's Hunger",
+                "The Red Nightmare",
+                "The Retch",
+                "The Searing Touch",
+                "The Signal Fire",
+                "The Snowblind Grace",
+                "The Sorrow of the Divine",
+                "The Stampede",
+                "The Tactician",
+                "The Taming",
+                "The Tempest",
+                "Unending Hunger",
+                "Uzaza's Mountain",
+                "Ventor's Gamble",
+                "Victario's Influence",
+                "Viper's Scales",
+                "Vivinsect",
+                "Void Battery",
+                "Voidforge",
+                "Warrior's Legacy",
+                "Whakatutuki o Matua",
+                "Wildwrap",
+                "Windripper",
+                "Windshriek",
+                "Xirgil's Crank",
+                "Xoph's Blood",
+                "Xoph's Inception",
+                "Xoph's Nurture",
+            };
+
+            string text = "";
+            foreach (var v in GoodUniquesList)
+            {
+                text += v + "\r\n";
+            }
 
             using (StreamWriter streamWriter = new StreamWriter(path, true))
             {
@@ -167,6 +349,19 @@ namespace InventoryItemsAnalyzer
                 drawRect.X -= 5;
                 drawRect.Y -= 5;
 
+                #region Filter trash uniques
+
+                if (!item.HasComponent<ExileCore.PoEMemory.Components.Map>() &&
+                    modsComponent?.ItemRarity == ItemRarity.Unique &&
+                    item?.GetComponent<Sockets>()?.LargestLinkSize != 6 &&
+                    !GoodUniquesList.Contains(modsComponent.UniqueName))
+                {
+                    LogMessage(modsComponent.UniqueName);
+                    _allItemsPos.Add(drawRect);
+                }
+
+                #endregion
+                
                 if (modsComponent?.ItemRarity == ItemRarity.Normal || modsComponent?.ItemRarity == ItemRarity.Magic)
                 {
                     if (item?.GetComponent<Sockets>()?.NumberOfSockets == 6)
@@ -764,7 +959,7 @@ namespace InventoryItemsAnalyzer
             {
                 Vector2 vector2 = new Vector2(position.X + 25, position.Y + 25);
 
-                Input.SetCursorPos(vector2 + _windowOffset);
+                yield return Input.SetCursorPositionSmooth(vector2 + _windowOffset);
 
                 yield return new WaitTime(Settings.ExtraDelay.Value / 2);
 

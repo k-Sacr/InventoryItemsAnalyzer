@@ -1,4 +1,5 @@
-﻿using ExileCore.Shared.Interfaces;
+﻿using System.Collections.Generic;
+using ExileCore.Shared.Interfaces;
 using ExileCore.Shared.Nodes;
 using ExileCore.Shared.Attributes;
 using SharpDX;
@@ -159,6 +160,20 @@ namespace InventoryItemsAnalyzer
             QCritChance = new RangeNode<int>(25, 20, 40);
             QAffixes = new RangeNode<int>(2, 0, 5);
 
+            #endregion
+
+            #region PoeNinjaUnique
+
+            Update = new ToggleNode(false);
+
+            List<string> listLeagues = new List<string>()
+            {
+                "Temp SC", "Temp HC"
+            };
+            League = new ListNode();
+            League.SetListValues(listLeagues);
+
+            ChaosValue = new RangeNode<int>(2, 0, 50);
             #endregion
         }
         //Get Set
@@ -515,6 +530,22 @@ namespace InventoryItemsAnalyzer
         public RangeNode<int> QAffixes { get; set; }
         #endregion
 
+        #region PoeNinjaUnique
+
+        [Menu("Parsing Poe Ninja Setting", 99)] 
+        public EmptyNode PoeNinjaUnique { get; set; }
+
+        [Menu("Enable", parentIndex = 99, Tooltip = "Parsing poe ninja for autovendor trash uniques items")]
+        public ToggleNode Update { get; set; }
+        
+        [Menu("League", parentIndex = 99, Tooltip = "Choose league")]
+        public ListNode League { get; set; }
+        
+        [Menu("Chaos", "Set min chaos value for autovendor")]
+        public RangeNode<int> ChaosValue { get; set; }
+        
+        #endregion
+        
         #region Additional Menu Settings
         [Menu("Additional Menu Settings", 100)]
         public EmptyNode Settings { get; set; }
@@ -548,6 +579,7 @@ namespace InventoryItemsAnalyzer
 
         [Menu("ItemLevel", "Set min ItemLevet for highlighted (ItemBase)")]
         public RangeNode<int> ItemLevel_BaseType { get; set; }
+        
+        #endregion
     } 
-    #endregion
 }

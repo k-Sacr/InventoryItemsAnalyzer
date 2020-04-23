@@ -16,6 +16,8 @@ using System.IO;
 using System;
 using ExileCore.Shared;
 using System.Collections;
+using System.Net;
+using Newtonsoft.Json.Linq;
 
 namespace InventoryItemsAnalyzer
 {
@@ -48,8 +50,8 @@ namespace InventoryItemsAnalyzer
 
             ParseConfig_BaseType();
 
-            ParseConfig_Unique();            
-            
+            ParseConfig_Unique();
+
             Name = "INV Item Analyzer";
 
             var combine = Path.Combine(DirectoryFullName, "img", "GoodItem.png").Replace('\\', '/');
@@ -144,181 +146,93 @@ namespace InventoryItemsAnalyzer
         
         private void ParseConfig_Unique()
         {
-            string path = $"{DirectoryFullName}\\GoodUnique.txt";
-
-            CheckGoodUnique(path);
-
-            using (StreamReader reader = new StreamReader(path) )
-            {
-                string text = reader.ReadToEnd();
-
-                GoodBaseTypes = text.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-                reader.Close();
-            }
-        }
-        
-        private void CheckGoodUnique(string path)
-        {
-            if (File.Exists(path)) 
+            GoodUniquesList = new List<string>();
+            
+            if (!Settings.Update.Value)
                 return;
 
-            GoodUniquesList = new List<string>
-            {
-                "Agnerod West",
-                "Ahkeli's Meadow",
-                "Ahkeli's Valley",
-                "Alpha's Howl",
-                "Arborix",
-                "Astramentis",
-                "Atziri's Disfavour",
-                "Atziri's Splendour",
-                "Beltimber Blade",
-                "Berek's Respite",
-                "Bisco's Collar",
-                "Bisco's Leash",
-                "Brain Rattler",
-                "Briskwrap",
-                "Brutal Restraint",
-                "Bubonic Trail",
-                "Carcass Jack",
-                "Chaber Cairn",
-                "Chains of Command",
-                "Circle of Anguish",
-                "Circle of Guilt",
-                "Cloak of Defiance",
-                "Cloak of Tawm'r Isley",
-                "Corona Solaris",
-                "Coward's Chains",
-                "Craiceann's Carapace",
-                "Crown of the Tyrant",
-                "Daresso's Defiance",
-                "Darkscorn",
-                "Death's Harp",
-                "Death's Opus",
-                "Divinarius",
-                "Doedre's Skin",
-                "Doomsower",
-                "Dreadbeak",
-                "Dying Sun",
-                "Elegant Hubris",
-                "Energy From Within",
-                "Fenumus' Shroud",
-                "Fenumus' Spinnerets",
-                "Frostferno",
-                "Garb of the Ephemeral",
-                "Garukhan's Flight",
-                "Geofri's Legacy",
-                "Geofri's Sanctuary",
-                "Glorious Vanity",
-                "Goldwyrm",
-                "Greedtrap",
-                "Grelwood Shank",
-                "Grip of the Council",
-                "Gruthkul's Pelt",
-                "Hands of the High Templar",
-                "Healthy Mind",
-                "Hopeshredder",
-                "Hrimburn",
-                "Hyrri's Demise",
-                "Hyrri's Ire",
-                "Impresence",
-                "Inpulsa's Broken Heart",
-                "Kaom's Heart",
-                "Karui Charge",
-                "Kingmaker",
-                "Kintsugi",
-                "Kitava's Feast",
-                "Lethal Pride",
-                "Lioneye's Fall",
-                "Lioneye's Vision",
-                "Loreweave",
-                "Magna Eclipsis",
-                "Maligaro's Virtuosity",
-                "Mark of the Shaper",
-                "Marohi Erqi",
-                "Martyr of Innocence",
-                "Mask of the Spirit Drinker",
-                "Might of the Meek",
-                "Militant Faith",
-                "Mother's Embrace",
-                "Ngamahu's Flame",
-                "Null and Void",
-                "One With Nothing",
-                "Pledge of Hands",
-                "Precursor's Emblem",
-                "Presence of Chayula",
-                "Prism Guardian",
-                "Putembo's Meadow",
-                "Putembo's Valley",
-                "Queen of the Forest",
-                "Seven-League Step",
-                "Shade of Solaris",
-                "Shroud of the Lightless",
-                "Silverbough",
-                "Sin's Rebirth",
-                "Sire of Shards",
-                "Slivertongue",
-                "Solstice Vigil",
-                "Soul Taker",
-                "Sporeguard",
-                "Starforge",
-                "The Anima Stone",
-                "The Anticipation",
-                "The Blue Nightmare",
-                "The Coming Calamity",
-                "The Dancing Duo",
-                "The Devouring Diadem",
-                "The Effigon",
-                "The Enmity Divine",
-                "The Goddess Scorned",
-                "The Green Dream",
-                "The Gryphon",
-                "The Iron Fortress",
-                "The Pariah",
-                "The Poet's Pen",
-                "The Primordial Chain",
-                "The Queen's Hunger",
-                "The Red Nightmare",
-                "The Retch",
-                "The Searing Touch",
-                "The Signal Fire",
-                "The Snowblind Grace",
-                "The Sorrow of the Divine",
-                "The Stampede",
-                "The Tactician",
-                "The Taming",
-                "The Tempest",
-                "Unending Hunger",
-                "Uzaza's Mountain",
-                "Ventor's Gamble",
-                "Victario's Influence",
-                "Viper's Scales",
-                "Vivinsect",
-                "Void Battery",
-                "Voidforge",
-                "Warrior's Legacy",
-                "Whakatutuki o Matua",
-                "Wildwrap",
-                "Windripper",
-                "Windshriek",
-                "Xirgil's Crank",
-                "Xoph's Blood",
-                "Xoph's Inception",
-                "Xoph's Nurture",
-            };
+            #region Parsing
 
-            string text = "";
-            foreach (var v in GoodUniquesList)
+            List<string> uniquesUrls;
+            
+            switch (Settings.League.Value)
             {
-                text += v + "\r\n";
+                case "Temp SC" : 
+                    uniquesUrls = new List<string>()
+                    {
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueJewel&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueFlask&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueWeapon&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueArmour&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueAccessory&language=en",
+                    };
+                    break;
+                
+                case "Temp HC" : 
+                    uniquesUrls = new List<string>()
+                    {
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueJewel&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueFlask&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueWeapon&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueArmour&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueAccessory&language=en",
+                    };
+                    break;
+                
+                default:
+                    uniquesUrls = new List<string>();
+                    break;
+            }
+            
+            var result = new HashSet<string>();
+
+            foreach (var url in uniquesUrls)
+            {
+                using (var wc = new WebClient())
+                {
+                    var json = wc.DownloadString(url);
+                    var o = JObject.Parse(json);
+                    foreach (var line in o?["lines"])
+                    {
+                        if (int.TryParse((string) line?["links"], out var links) &&
+                            links == 6)
+                        {
+                            continue;
+                        }
+
+                        if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
+                            chaosValue >= Settings.ChaosValue.Value)
+                        {
+                            result.Add((string) line?["name"]);
+                        }
+                    }
+                }
             }
 
-            using (StreamWriter streamWriter = new StreamWriter(path, true))
-            {
-                streamWriter.Write(text);
-                streamWriter.Close();
-            }
+            var result2 = result.ToList();
+            result2.Sort();
+
+            GoodUniquesList = result2;
+
+            #region Test
+
+            // string text = "";
+            //
+            // foreach (var v in GoodUniquesList)
+            // {
+            //     text += v + Environment.NewLine;
+            // }
+            //
+            // string path = $"{DirectoryFullName}\\Test.txt";
+            // using (StreamWriter streamWriter = new StreamWriter(path, true))
+            // {
+            //     streamWriter.Write(text);
+            //     streamWriter.Close();
+            // }
+
+            #endregion
+            
+            #endregion
         }
 
         #endregion
@@ -1681,8 +1595,8 @@ namespace InventoryItemsAnalyzer
         }
 
         private static int FixTierEs(string key) => 9 - int.Parse(key.Last().ToString());
+        #endregion
     }
-    #endregion
         #region Get item Stats
     public static class ModsExtension
     {

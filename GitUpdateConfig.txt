@@ -1,9 +1,0 @@
-Owner: k-Sacr
-Name: InventoryItemsAnalyzer
-Repository
-
-Ignore:
-src
-.gitignore
-README.md
-config.ini

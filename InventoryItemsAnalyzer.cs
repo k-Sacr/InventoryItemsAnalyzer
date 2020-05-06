@@ -69,6 +69,8 @@ namespace InventoryItemsAnalyzer
             Input.RegisterKey(Keys.LControlKey);
 
             Settings.HotKey.OnValueChanged += () => { Input.RegisterKey(Settings.HotKey.Value); };
+            
+            Settings.League.OnValueSelectedPre += s => { ParseConfig_Unique(); };
 
             return true;
         }

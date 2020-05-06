@@ -38,6 +38,8 @@ namespace InventoryItemsAnalyzer
         int idenf = 0;
         private Coroutine CoroutineWorker;
         private const string coroutineName = "InventoryItemsAnalyzer";
+        private DateTime _renderWait = DateTime.MinValue;
+        private TimeSpan _wait = new TimeSpan(0, 0, 1);
 
         public InventoryItemsAnalyzer() 
         { 
@@ -73,6 +75,9 @@ namespace InventoryItemsAnalyzer
 
         public override void Render()
         {
+            if ((_renderWait - DateTime.Now) > _wait)
+                waitTime();
+
             if (!_ingameState.IngameUi.InventoryPanel.IsVisible)
             {
                 CountInventory = 0;
@@ -106,6 +111,12 @@ namespace InventoryItemsAnalyzer
             }
         }
 
+        private IEnumerator waitTime()
+        {
+            _renderWait = DateTime.Now;
+            yield return new WaitTime(_wait.Milliseconds);
+        }
+        
         #region Load config
 
         private void ParseConfig_BaseType()
@@ -171,11 +182,11 @@ namespace InventoryItemsAnalyzer
                 case "Temp HC" : 
                     uniquesUrls = new List<string>()
                     {
-                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Delirium&type=UniqueAccessory&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Delirium&type=UniqueJewel&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Delirium&type=UniqueFlask&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Delirium&type=UniqueWeapon&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Delirium&type=UniqueArmour&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Delirium&type=UniqueAccessory&language=en",
                     };
                     break;
                 

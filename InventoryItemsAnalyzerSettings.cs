@@ -196,7 +196,7 @@ namespace InventoryItemsAnalyzer
 
             #endregion
 
-            #region PoeNinjaUnique
+            #region PoeNinja
 
             Update = new ToggleNode(false);
 
@@ -207,7 +207,9 @@ namespace InventoryItemsAnalyzer
             League = new ListNode();
             League.SetListValues(listLeagues);
 
-            ChaosValue = new RangeNode<int>(2, 0, 50);
+            ChaosUnique = new RangeNode<int>(5, 0, 50);
+            
+            ChaosProphecy = new RangeNode<int>(5, 0, 50);
 
             #endregion
         }
@@ -601,54 +603,54 @@ namespace InventoryItemsAnalyzer
 
         #region Quiver
 
-        [Menu("Quiver", 20, Tooltip = "Quiver Settings")]
+        [Menu("Quiver", 11, Tooltip = "Quiver Settings")]
         public ToggleNode Quiver { get; set; }
 
-        [Menu("Life", parentIndex = 20, Tooltip = "Set the minimum value to filter for life value")]
+        [Menu("Life", parentIndex = 11, Tooltip = "Set the minimum value to filter for life value")]
         public RangeNode<int> Q_Life { get; set; }
 
-        [Menu("Total Resitance", parentIndex = 20,
+        [Menu("Total Resitance", parentIndex = 11,
               Tooltip                        = "Set the minimum value to filter for total resistance value")]
         public RangeNode<int> Q_TotalRes { get; set; }
 
-        [Menu("Physical Damage to Attacks", parentIndex = 20,
+        [Menu("Physical Damage to Attacks", parentIndex = 11,
               Tooltip = "Set the minimum value to filter for physical damage to attacks value")]
         public RangeNode<int> Q_PhysDamage { get; set; }
 
-        [Menu("Weapon Elemental Damage", parentIndex = 20,
+        [Menu("Weapon Elemental Damage", parentIndex = 11,
               Tooltip = "Set the minimum value to filter for weapon elemental damage value")]
         public RangeNode<int> Q_WeaponElemDamage { get; set; }
 
-        [Menu("Accuracy Rating", parentIndex = 20,
+        [Menu("Accuracy Rating", parentIndex = 11,
               Tooltip                        = "Set the minimum value to filter for accuracy rating value")]
         public RangeNode<int> Q_Accuracy { get; set; }
 
-        [Menu("Critical Strike Multiplier", parentIndex = 20,
+        [Menu("Critical Strike Multiplier", parentIndex = 11,
               Tooltip = "Set the minimum value to filter for critical strike multiplier value")]
         public RangeNode<int> Q_CritMult { get; set; }
 
-        [Menu("Critical Strike Chance", parentIndex = 20,
+        [Menu("Critical Strike Chance", parentIndex = 11,
               Tooltip = "Set the minimum value to filter for critical strike chance value")]
         public RangeNode<int> Q_CritChance { get; set; }
 
-        [Menu("Affix Count", parentIndex = 20, Tooltip = "Set the minimum number of affixes for this item class")]
+        [Menu("Affix Count", parentIndex = 11, Tooltip = "Set the minimum number of affixes for this item class")]
         public RangeNode<int> Q_Affixes { get; set; }
 
         #endregion
 
         #region PoeNinjaUnique
 
-        [Menu("Parsing Poe Ninja Setting", 99)]
-        public EmptyNode PoeNinjaUnique { get; set; }
-
-        [Menu("Enable", parentIndex = 99, Tooltip = "Parsing poe ninja for autovendor trash uniques items")]
+        [Menu("Poe Ninja", 99, Tooltip = "Parsing poe ninja")]
         public ToggleNode Update { get; set; }
-
+        
         [Menu("League", parentIndex = 99, Tooltip = "Choose league")]
         public ListNode League { get; set; }
 
-        [Menu("Chaos", "Set min chaos value for autovendor")]
-        public RangeNode<int> ChaosValue { get; set; }
+        [Menu("Chaos-Unique", parentIndex = 99, Tooltip = "Set min chaos value for uniq items")]
+        public RangeNode<int> ChaosUnique { get; set; }
+        
+        [Menu("Chaos-Prophecy", parentIndex = 99, Tooltip = "Set min chaos value for prophecies")]
+        public RangeNode<int> ChaosProphecy { get; set; }
 
         #endregion
 

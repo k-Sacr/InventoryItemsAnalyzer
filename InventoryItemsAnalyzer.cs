@@ -24,16 +24,22 @@ namespace InventoryItemsAnalyzer
         private List<RectangleF> _allItemsPos;
         private List<RectangleF> _highItemsPos;
         private List<RectangleF> _veilItemsPos;
+        
         private Vector2 _windowOffset;
         private IngameState _ingameState;
+        
         private HashSet<string> GoodBaseTypes;
-        private HashSet<string> GoodUniquesList;
-        int CountInventory = 0;
-        int idenf = 0;
+        private HashSet<string> GoodUniques;
+        private HashSet<string> GoodProphecies;
+        private readonly string _leagueName = "Harvest";
+
+        private int _countInventory = 0;
+        private int _idenf = 0;
         private Coroutine CoroutineWorker;
+
         private const string coroutineName = "InventoryItemsAnalyzer";
-        private DateTime _renderWait = DateTime.MinValue;
-        private TimeSpan _wait = new TimeSpan(0, 0, 1);
+        private DateTime _renderWait;
+        private TimeSpan _wait = new TimeSpan(0, 0, 0, 0, 500);
 
         private List<ModValue> _mods;
         private int _totalWeight;
@@ -44,6 +50,11 @@ namespace InventoryItemsAnalyzer
         public InventoryItemsAnalyzer()
         {
             _mods = new List<ModValue>();
+            _renderWait = DateTime.Now;
+            _goodItemsPos = new List<RectangleF>();
+            _allItemsPos = new List<RectangleF>();
+            _highItemsPos = new List<RectangleF>();
+            _veilItemsPos = new List<RectangleF>();
         }
 
         public override bool Initialise()
@@ -54,7 +65,7 @@ namespace InventoryItemsAnalyzer
             {
                 ParseConfig_BaseType();
 
-                ParseConfig_Unique();
+                ParsePoeNinja();
             }
             catch (Exception)
             {
@@ -77,58 +88,65 @@ namespace InventoryItemsAnalyzer
 
             Settings.HotKey.OnValueChanged += () => { Input.RegisterKey(Settings.HotKey.Value); };
 
-            Settings.League.OnValueSelectedPre += s => { ParseConfig_Unique(); };
+            Settings.League.OnValueSelectedPre += s => { ParsePoeNinja(); };
 
             return true;
         }
 
         public override void Render()
         {
-            if ((_renderWait - DateTime.Now) > _wait)
-                waitTime();
-
             if (!_ingameState.IngameUi.InventoryPanel.IsVisible)
             {
-                CountInventory = 0;
-                idenf = 0;
+                _countInventory = 0;
+                _idenf = 0;
                 return;
             }
 
-            var normalInventoryItems = _ingameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory]
-                .VisibleInventoryItems;
-
-            int temp = normalInventoryItems.Count(t => t.Item?.GetComponent<Mods>()?.Identified == true);
-
-            //LogMessage(normalInventoryItems.Count.ToString() + " " + CountInventory.ToString() + " // " + temp .ToString() + " " + idenf.ToString(), 3f);
-
-            if (normalInventoryItems.Count != CountInventory || temp != idenf)
+            long wait = Math.Abs((_renderWait - DateTime.Now).Ticks);
+            
+            if (wait < _wait.Ticks)
             {
-                ScanInventory(normalInventoryItems);
-                CountInventory = normalInventoryItems.Count;
-                idenf = temp;
-            }
-
-            if (!Settings.HideUnderMouse)
-            {
-                DrawSyndicateItems(_veilItemsPos);
-                DrawGoodItems(_goodItemsPos);
-                DrawHighItemLevel(_highItemsPos);
-
-                if (Settings.HotKey.PressedOnce())
+                if (!Settings.HideUnderMouse)
                 {
-                    CoroutineWorker = new Coroutine(ClickShit(), this, coroutineName);
-                    Core.ParallelRunner.Run(CoroutineWorker);
+                    DrawSyndicateItems(_veilItemsPos);
+                    DrawGoodItems(_goodItemsPos);
+                    DrawHighItemLevel(_highItemsPos);
+
+                    if (Settings.HotKey.PressedOnce())
+                    {
+                        CoroutineWorker = new Coroutine(ClickShit(), this, coroutineName);
+                        Core.ParallelRunner.Run(CoroutineWorker);
+                    }
                 }
             }
-        }
+            
+            if (wait > _wait.Ticks)
+            {
+                var normalInventoryItems = _ingameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory]
+                    .VisibleInventoryItems;
 
-        private IEnumerator waitTime()
-        {
-            _renderWait = DateTime.Now;
-            yield return new WaitTime(_wait.Milliseconds);
+                int temp = normalInventoryItems.Count(t => t.Item?.GetComponent<Mods>()?.Identified == true);
+
+                //LogMessage(normalInventoryItems.Count.ToString() + " " + CountInventory.ToString() + " // " + temp .ToString() + " " + idenf.ToString(), 3f);
+
+                if (normalInventoryItems.Count != _countInventory || temp != _idenf)
+                {
+                    ScanInventory(normalInventoryItems);
+                    _countInventory = normalInventoryItems.Count;
+                    _idenf = temp;
+                }
+                else
+                {
+                    LogMessage("skin", 10f);
+                }
+                
+                _renderWait = DateTime.Now;
+            }
         }
 
         #region Load config
+
+        #region Local Config
 
         private void ParseConfig_BaseType()
         {
@@ -171,14 +189,17 @@ namespace InventoryItemsAnalyzer
             }
         }
 
-        private void ParseConfig_Unique()
+        #endregion
+        
+        private void ParsePoeNinja()
         {
-            GoodUniquesList = new HashSet<string>();
+            GoodUniques = new HashSet<string>();
+            GoodProphecies = new HashSet<string>();
 
             if (!Settings.Update.Value)
                 return;
-
-            #region Parsing
+            
+            #region Unique
 
             List<string> uniquesUrls;
 
@@ -187,22 +208,22 @@ namespace InventoryItemsAnalyzer
                 case "Temp SC":
                     uniquesUrls = new List<string>()
                     {
-                        @"https://poe.ninja/api/data/itemoverview?league=Harvest&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Harvest&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Harvest&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Harvest&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Harvest&type=UniqueAccessory&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueJewel&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueFlask&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueWeapon&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueArmour&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueAccessory&language=en",
                     };
                     break;
 
                 case "Temp HC":
                     uniquesUrls = new List<string>()
                     {
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Harvest&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Harvest&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Harvest&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Harvest&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore Harvest&type=UniqueAccessory&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueJewel&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueFlask&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueWeapon&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueArmour&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueAccessory&language=en",
                     };
                     break;
 
@@ -211,7 +232,7 @@ namespace InventoryItemsAnalyzer
                     break;
             }
 
-            var result = new HashSet<string>();
+            var result = new List<string>();
 
             foreach (var url in uniquesUrls)
             {
@@ -228,7 +249,7 @@ namespace InventoryItemsAnalyzer
                         }
 
                         if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                            chaosValue >= Settings.ChaosValue.Value)
+                            chaosValue >= Settings.ChaosUnique.Value)
                         {
                             result.Add((string) line?["name"]);
                         }
@@ -236,16 +257,54 @@ namespace InventoryItemsAnalyzer
                 }
             }
 
-            var result2 = result.ToList();
-            result2.Sort();
+            GoodUniques = result.ToHashSet();
 
-            GoodUniquesList = result2.ToHashSet();
+            #endregion
 
+            #region Prophecy
+            
+            string url2;
+
+            switch (Settings.League.Value)
+            {
+                case "Temp SC":
+                    url2 = @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=Prophecy&language=en";
+                    break;
+
+                case "Temp HC":
+                    url2 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=Prophecy&language=en";
+                    break;
+
+                default:
+                    url2 = "";
+                    break;
+            }
+
+            result.Clear();
+
+            using (var wc = new WebClient())
+            {
+                var json = wc.DownloadString(url2);
+                var o = JObject.Parse(json);
+                foreach (var line in o?["lines"])
+                {
+                    if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
+                        chaosValue >= Settings.ChaosProphecy.Value)
+                    {
+                        result.Add((string) line?["name"]);
+                    }
+                }
+            }
+
+            GoodProphecies = result.ToHashSet();
+
+            #endregion
+            
             #region Test
 
             // string text = "";
             //
-            // foreach (var v in GoodUniquesList)
+            // foreach (var v in GoodProphecies)
             // {
             //     text += v + Environment.NewLine;
             // }
@@ -258,8 +317,6 @@ namespace InventoryItemsAnalyzer
             // }
 
             #endregion
-
-            #endregion
         }
 
         #endregion
@@ -268,10 +325,10 @@ namespace InventoryItemsAnalyzer
 
         private void ScanInventory(IList<NormalInventoryItem> normalInventoryItems)
         {
-            _goodItemsPos = new List<RectangleF>();
-            _allItemsPos = new List<RectangleF>();
-            _highItemsPos = new List<RectangleF>();
-            _veilItemsPos = new List<RectangleF>();
+            _goodItemsPos.Clear();
+            _allItemsPos.Clear();
+            _highItemsPos.Clear();
+            _veilItemsPos.Clear();
 
             foreach (var normalInventoryItem in normalInventoryItems)
             {
@@ -287,9 +344,6 @@ namespace InventoryItemsAnalyzer
 
                 var modsComponent = item.GetComponent<Mods>();
 
-                if (modsComponent?.ItemRarity == null)
-                    continue;
-
                 var drawRect = normalInventoryItem.GetClientRect();
                 //fix star position
                 drawRect.X -= 5;
@@ -299,10 +353,24 @@ namespace InventoryItemsAnalyzer
                 
                 #endregion
 
+                #region Prophecy
+
+                if (item.HasComponent<Prophecy>())
+                {
+                    var prop = item.GetComponent<Prophecy>();
+
+                    if (GoodProphecies.Contains(prop?.DatProphecy?.Name))
+                    {
+                        _goodItemsPos.Add(drawRect);
+                    }
+                }
+
+                #endregion
+                
                 #region Filter trash uniques
 
-                if (modsComponent.ItemRarity == ItemRarity.Unique &&
-                    !GoodUniquesList.Contains(modsComponent.UniqueName) &&
+                if (modsComponent?.ItemRarity == ItemRarity.Unique &&
+                    !GoodUniques.Contains(modsComponent.UniqueName) &&
                     !item.HasComponent<ExileCore.PoEMemory.Components.Map>() &&
                     item.GetComponent<Sockets>()?.LargestLinkSize != 6
                 )
@@ -319,7 +387,7 @@ namespace InventoryItemsAnalyzer
 
                 #region 6socket N/M for sale
 
-                if (modsComponent.ItemRarity == ItemRarity.Normal || modsComponent.ItemRarity == ItemRarity.Magic)
+                if (modsComponent?.ItemRarity == ItemRarity.Normal || modsComponent?.ItemRarity == ItemRarity.Magic)
                 {
                     if (item.GetComponent<Sockets>()?.NumberOfSockets == 6)
                         _allItemsPos.Add(drawRect);
@@ -329,7 +397,7 @@ namespace InventoryItemsAnalyzer
 
                 #endregion
 
-                if (modsComponent.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false)
+                if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false)
                     continue;
 
                 _totalWeight = 0;

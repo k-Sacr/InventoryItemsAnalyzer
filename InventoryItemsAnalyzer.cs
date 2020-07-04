@@ -31,6 +31,7 @@ namespace InventoryItemsAnalyzer
         private HashSet<string> GoodBaseTypes;
         private HashSet<string> GoodUniques;
         private HashSet<string> GoodProphecies;
+        private HashSet<string> GoodDivCards;
         private readonly string _leagueName = "Harvest";
 
         private int _countInventory = 0;
@@ -135,11 +136,7 @@ namespace InventoryItemsAnalyzer
                     _countInventory = normalInventoryItems.Count;
                     _idenf = temp;
                 }
-                else
-                {
-                    LogMessage("skin", 10f);
-                }
-                
+
                 _renderWait = DateTime.Now;
             }
         }
@@ -195,6 +192,7 @@ namespace InventoryItemsAnalyzer
         {
             GoodUniques = new HashSet<string>();
             GoodProphecies = new HashSet<string>();
+            GoodDivCards = new HashSet<string>();
 
             if (!Settings.Update.Value)
                 return;
@@ -300,6 +298,45 @@ namespace InventoryItemsAnalyzer
 
             #endregion
             
+            #region DivCard
+            
+            string url3;
+
+            switch (Settings.League.Value)
+            {
+                case "Temp SC":
+                    url3 = @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=DivinationCard&language=en";
+                    break;
+
+                case "Temp HC":
+                    url3 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=DivinationCard&language=en";
+                    break;
+
+                default:
+                    url3 = "";
+                    break;
+            }
+
+            result.Clear();
+
+            using (var wc = new WebClient())
+            {
+                var json = wc.DownloadString(url3);
+                var o = JObject.Parse(json);
+                foreach (var line in o?["lines"])
+                {
+                    if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
+                        chaosValue >= Settings.ChaosProphecy.Value)
+                    {
+                        result.Add((string) line?["name"]);
+                    }
+                }
+            }
+
+            GoodDivCards = result.ToHashSet();
+
+            #endregion
+            
             #region Test
 
             // string text = "";
@@ -360,6 +397,18 @@ namespace InventoryItemsAnalyzer
                     var prop = item.GetComponent<Prophecy>();
 
                     if (GoodProphecies.Contains(prop?.DatProphecy?.Name))
+                    {
+                        _goodItemsPos.Add(drawRect);
+                    }
+                }
+
+                #endregion
+
+                #region Div Card
+
+                if (bit.ClassName.Equals("DivinationCard"))
+                {
+                    if (GoodDivCards.Contains(bit.BaseName))
                     {
                         _goodItemsPos.Add(drawRect);
                     }

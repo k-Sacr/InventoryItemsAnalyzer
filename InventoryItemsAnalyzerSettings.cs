@@ -210,6 +210,8 @@ namespace InventoryItemsAnalyzer
             ChaosUnique = new RangeNode<int>(5, 0, 50);
             
             ChaosProphecy = new RangeNode<int>(5, 0, 50);
+            
+            ChaosDivCard = new RangeNode<int>(10, 0, 50);
 
             #endregion
         }
@@ -651,6 +653,9 @@ namespace InventoryItemsAnalyzer
         
         [Menu("Chaos-Prophecy", parentIndex = 99, Tooltip = "Set min chaos value for prophecies")]
         public RangeNode<int> ChaosProphecy { get; set; }
+        
+        [Menu("Chaos-DivCard", parentIndex = 99, Tooltip = "Set min chaos value for div Card")]
+        public RangeNode<int> ChaosDivCard { get; set; }
 
         #endregion
 

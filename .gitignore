@@ -247,3 +247,5 @@ ModelManifest.xml
 config.ini
 InventoryItemsAnalyzer.pdb
 /ErrorLog.txt
+/.idea/
+/BaseType.txt

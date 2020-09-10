@@ -1,52 +1,52 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Windows.Forms;
+using AdvancedTooltip;
 using ExileCore;
 using ExileCore.PoEMemory.Components;
-using ExileCore.PoEMemory.MemoryObjects;
-using ExileCore.Shared.Enums;
-using ExileCore.PoEMemory.Models;
-using AdvancedTooltip;
 using ExileCore.PoEMemory.Elements.InventoryElements;
-using SharpDX;
-using System.Windows.Forms;
-using System.IO;
-using System;
+using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared;
-using System.Collections;
-using System.Net;
+using ExileCore.Shared.Enums;
 using Newtonsoft.Json.Linq;
+using SharpDX;
 
 namespace InventoryItemsAnalyzer
 {
     public class InventoryItemsAnalyzer : BaseSettingsPlugin<InventoryItemsAnalyzerSettings>
     {
-        private List<RectangleF> _goodItemsPos;
-        private List<RectangleF> _allItemsPos;
-        private List<RectangleF> _highItemsPos;
-        private List<RectangleF> _veilItemsPos;
-        
-        private Vector2 _windowOffset;
-        private IngameState _ingameState;
-        
-        private HashSet<string> GoodBaseTypes;
-        private HashSet<string> GoodUniques;
-        private HashSet<string> GoodProphecies;
-        private HashSet<string> GoodDivCards;
-        private readonly string _leagueName = "Harvest";
-
-        private int _countInventory = 0;
-        private int _idenf = 0;
-        private Coroutine CoroutineWorker;
-
         private const string coroutineName = "InventoryItemsAnalyzer";
-        private DateTime _renderWait;
-        private TimeSpan _wait = new TimeSpan(0, 0, 0, 0, 500);
+        private readonly List<RectangleF> _allItemsPos;
+        private readonly List<RectangleF> _goodItemsPos;
+        private readonly List<RectangleF> _highItemsPos;
 
-        private List<ModValue> _mods;
-        private int _totalWeight;
-        private Entity _item;
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
+
+        private readonly string _leagueName = "Harvest";
+        private readonly List<RectangleF> _veilItemsPos;
+
+        private int _countInventory;
+        private int _idenf;
+        private IngameState _ingameState;
+        private Entity _item;
+
+        private List<ModValue> _mods;
+        private DateTime _renderWait;
+        private int _totalWeight;
+        private TimeSpan _wait = new TimeSpan(0, 0, 0, 0, 500);
+
+        private Vector2 _windowOffset;
+        private Coroutine CoroutineWorker;
+
+        private HashSet<string> GoodBaseTypes;
+        private HashSet<string> GoodDivCards;
+        private HashSet<string> GoodProphecies;
+        private HashSet<string> GoodUniques;
 
         public InventoryItemsAnalyzer()
         {
@@ -70,7 +70,6 @@ namespace InventoryItemsAnalyzer
             }
             catch (Exception)
             {
-                
             }
 
             Name = "INV Item Analyzer";
@@ -103,10 +102,9 @@ namespace InventoryItemsAnalyzer
                 return;
             }
 
-            long wait = Math.Abs((_renderWait - DateTime.Now).Ticks);
-            
+            var wait = Math.Abs((_renderWait - DateTime.Now).Ticks);
+
             if (wait < _wait.Ticks)
-            {
                 if (!Settings.HideUnderMouse)
                 {
                     DrawSyndicateItems(_veilItemsPos);
@@ -119,14 +117,13 @@ namespace InventoryItemsAnalyzer
                         Core.ParallelRunner.Run(CoroutineWorker);
                     }
                 }
-            }
-            
+
             if (wait > _wait.Ticks)
             {
                 var normalInventoryItems = _ingameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory]
                     .VisibleInventoryItems;
 
-                int temp = normalInventoryItems.Count(t => t.Item?.GetComponent<Mods>()?.Identified == true);
+                var temp = normalInventoryItems.Count(t => t.Item?.GetComponent<Mods>()?.Identified == true);
 
                 //LogMessage(normalInventoryItems.Count.ToString() + " " + CountInventory.ToString() + " // " + temp .ToString() + " " + idenf.ToString(), 3f);
 
@@ -141,223 +138,6 @@ namespace InventoryItemsAnalyzer
             }
         }
 
-        #region Load config
-
-        #region Local Config
-
-        private void ParseConfig_BaseType()
-        {
-            string path = $"{DirectoryFullName}\\BaseType.txt";
-
-            CheckGoodBase(path);
-
-            using (StreamReader reader = new StreamReader(path))
-            {
-                string text = reader.ReadToEnd();
-
-                GoodBaseTypes = text.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
-
-                reader.Close();
-            }
-        }
-
-        private void CheckGoodBase(string path)
-        {
-            if (File.Exists(path)) return;
-
-            // Tier 1-3 NeverSink
-            string text = "Opal Ring" + "\r\n" + "Steel Ring" + "\r\n" + "Vermillion Ring" + "\r\n" +
-                          "Blue Pearl Amulet" + "\r\n" + "Bone Helmet" + "\r\n" +
-                          "Cerulean Ring" + "\r\n" + "Convoking Wand" + "\r\n" + "Crystal Belt" + "\r\n" +
-                          "Fingerless Silk Gloves" + "\r\n" + "Gripped Gloves" + "\r\n" +
-                          "Marble Amulet" + "\r\n" + "Sacrificial Garb" + "\r\n" + "Spiked Gloves" + "\r\n" +
-                          "Stygian Vise" + "\r\n" + "Two-Toned Boots" + "\r\n" +
-                          "Vanguard Belt" + "\r\n" + "Diamond Ring" + "\r\n" + "Onyx Amulet" + "\r\n" +
-                          "Two-Stone Ring" + "\r\n" + "Colossal Tower Shield" + "\r\n" +
-                          "Eternal Burgonet" + "\r\n" + "Hubris Circlet" + "\r\n" + "Lion Pelt" + "\r\n" +
-                          "Sorcerer Boots" + "\r\n" + "Sorcerer Gloves" + "\r\n" +
-                          "Titanium Spirit Shield" + "\r\n" + "Vaal Regalia" + "\r\n";
-
-
-            using (StreamWriter streamWriter = new StreamWriter(path, true))
-            {
-                streamWriter.Write(text);
-                streamWriter.Close();
-            }
-        }
-
-        #endregion
-        
-        private void ParsePoeNinja()
-        {
-            GoodUniques = new HashSet<string>();
-            GoodProphecies = new HashSet<string>();
-            GoodDivCards = new HashSet<string>();
-
-            if (!Settings.Update.Value)
-                return;
-            
-            #region Unique
-
-            List<string> uniquesUrls;
-
-            switch (Settings.League.Value)
-            {
-                case "Temp SC":
-                    uniquesUrls = new List<string>()
-                    {
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=UniqueAccessory&language=en",
-                    };
-                    break;
-
-                case "Temp HC":
-                    uniquesUrls = new List<string>()
-                    {
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=UniqueAccessory&language=en",
-                    };
-                    break;
-
-                default:
-                    uniquesUrls = new List<string>();
-                    break;
-            }
-
-            var result = new List<string>();
-
-            foreach (var url in uniquesUrls)
-            {
-                using (var wc = new WebClient())
-                {
-                    var json = wc.DownloadString(url);
-                    var o = JObject.Parse(json);
-                    foreach (var line in o?["lines"])
-                    {
-                        if (int.TryParse((string) line?["links"], out var links) &&
-                            links == 6)
-                        {
-                            continue;
-                        }
-
-                        if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                            chaosValue >= Settings.ChaosUnique.Value)
-                        {
-                            result.Add((string) line?["name"]);
-                        }
-                    }
-                }
-            }
-
-            GoodUniques = result.ToHashSet();
-
-            #endregion
-
-            #region Prophecy
-            
-            string url2;
-
-            switch (Settings.League.Value)
-            {
-                case "Temp SC":
-                    url2 = @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=Prophecy&language=en";
-                    break;
-
-                case "Temp HC":
-                    url2 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=Prophecy&language=en";
-                    break;
-
-                default:
-                    url2 = "";
-                    break;
-            }
-
-            result.Clear();
-
-            using (var wc = new WebClient())
-            {
-                var json = wc.DownloadString(url2);
-                var o = JObject.Parse(json);
-                foreach (var line in o?["lines"])
-                {
-                    if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                        chaosValue >= Settings.ChaosProphecy.Value)
-                    {
-                        result.Add((string) line?["name"]);
-                    }
-                }
-            }
-
-            GoodProphecies = result.ToHashSet();
-
-            #endregion
-            
-            #region DivCard
-            
-            string url3;
-
-            switch (Settings.League.Value)
-            {
-                case "Temp SC":
-                    url3 = @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName + @"&type=DivinationCard&language=en";
-                    break;
-
-                case "Temp HC":
-                    url3 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName + @"&type=DivinationCard&language=en";
-                    break;
-
-                default:
-                    url3 = "";
-                    break;
-            }
-
-            result.Clear();
-
-            using (var wc = new WebClient())
-            {
-                var json = wc.DownloadString(url3);
-                var o = JObject.Parse(json);
-                foreach (var line in o?["lines"])
-                {
-                    if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                        chaosValue >= Settings.ChaosProphecy.Value)
-                    {
-                        result.Add((string) line?["name"]);
-                    }
-                }
-            }
-
-            GoodDivCards = result.ToHashSet();
-
-            #endregion
-            
-            #region Test
-
-            // string text = "";
-            //
-            // foreach (var v in GoodProphecies)
-            // {
-            //     text += v + Environment.NewLine;
-            // }
-            //
-            // string path = $"{DirectoryFullName}\\Test.txt";
-            // using (StreamWriter streamWriter = new StreamWriter(path, true))
-            // {
-            //     streamWriter.Write(text);
-            //     streamWriter.Close();
-            // }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Scan Inventory
 
         private void ScanInventory(IList<NormalInventoryItem> normalInventoryItems)
@@ -371,7 +151,7 @@ namespace InventoryItemsAnalyzer
             {
                 #region Start
 
-                bool highItemLevel = false;
+                var highItemLevel = false;
                 var item = normalInventoryItem.Item;
                 if (item == null)
                     continue;
@@ -386,8 +166,8 @@ namespace InventoryItemsAnalyzer
                 drawRect.X -= 5;
                 drawRect.Y -= 5;
 
-                BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item.Path);
-                
+                var bit = GameController.Files.BaseItemTypes.Translate(item.Path);
+
                 #endregion
 
                 #region Prophecy
@@ -396,10 +176,7 @@ namespace InventoryItemsAnalyzer
                 {
                     var prop = item.GetComponent<Prophecy>();
 
-                    if (GoodProphecies.Contains(prop?.DatProphecy?.Name))
-                    {
-                        _goodItemsPos.Add(drawRect);
-                    }
+                    if (GoodProphecies.Contains(prop?.DatProphecy?.Name)) _goodItemsPos.Add(drawRect);
                 }
 
                 #endregion
@@ -407,26 +184,22 @@ namespace InventoryItemsAnalyzer
                 #region Div Card
 
                 if (bit.ClassName.Equals("DivinationCard"))
-                {
                     if (GoodDivCards.Contains(bit.BaseName))
-                    {
                         _goodItemsPos.Add(drawRect);
-                    }
-                }
 
                 #endregion
-                
+
                 #region Filter trash uniques
 
                 if (modsComponent?.ItemRarity == ItemRarity.Unique &&
                     !GoodUniques.Contains(modsComponent.UniqueName) &&
-                    !item.HasComponent<ExileCore.PoEMemory.Components.Map>() &&
+                    !item.HasComponent<Map>() &&
                     item.GetComponent<Sockets>()?.LargestLinkSize != 6
                 )
                 {
                     if (bit.ClassName.Contains("MetamorphosisDNA"))
                         continue;
-                    
+
                     LogMessage(modsComponent.UniqueName);
                     _allItemsPos.Add(drawRect);
                     continue;
@@ -451,15 +224,15 @@ namespace InventoryItemsAnalyzer
 
                 _totalWeight = 0;
 
-                List<ItemMod> itemMods = modsComponent.ItemMods;
+                var itemMods = modsComponent.ItemMods;
 
                 _mods.Clear();
-                
+
                 _mods = itemMods
                     .Select(it => new ModValue(it, GameController.Files, modsComponent.ItemLevel, bit)).ToList();
 
                 _item = item;
-                
+
                 #region Influence
 
                 {
@@ -505,7 +278,7 @@ namespace InventoryItemsAnalyzer
                         break;
 
                     case "Quiver":
-                        
+
                         CheckLife(Settings.Q_Life);
                         CheckResist(Settings.Q_TotalRes);
                         CheckAccuracy(Settings.Q_Accuracy);
@@ -513,12 +286,12 @@ namespace InventoryItemsAnalyzer
                         CheckWED(Settings.Q_WeaponElemDamage);
                         CheckCritMultiGlobal(Settings.Q_CritMult);
                         CheckGlobalCritChance(Settings.Q_CritChance);
-                        
+
                         CheckGood(Settings.Q_Affixes, drawRect);
                         break;
 
                     case "Helmet":
-                        
+
                         CheckLife(Settings.H_Life);
                         CheckDefense(Settings.H_EnergyShield);
                         CheckResist(Settings.H_TotalRes);
@@ -528,12 +301,12 @@ namespace InventoryItemsAnalyzer
                         CheckComboLife(Settings.H_LifeCombo);
                         CheckAccuracy(Settings.H_Accuracy);
                         CheckMana(Settings.H_Mana);
-                        
+
                         CheckGood(Settings.H_Affixes, drawRect);
                         break;
 
                     case "Boots":
-                        
+
                         CheckLife(Settings.B_Life);
                         CheckDefense(Settings.B_EnergyShield);
                         CheckMoveSpeed(Settings.B_MoveSpeed);
@@ -543,12 +316,12 @@ namespace InventoryItemsAnalyzer
                         CheckStrength(Settings.B_Strength);
                         CheckComboLife(Settings.B_LifeCombo);
                         CheckMana(Settings.B_Mana);
-                        
+
                         CheckGood(Settings.B_Affixes, drawRect);
                         break;
 
                     case "Gloves":
-                        
+
                         CheckLife(Settings.G_Life);
                         CheckDefense(Settings.G_EnergyShield);
                         CheckResist(Settings.G_TotalRes);
@@ -560,12 +333,12 @@ namespace InventoryItemsAnalyzer
                         CheckDexterity(Settings.G_Dexterity);
                         CheckMana(Settings.G_Mana);
                         CheckComboLife(Settings.G_LifeCombo);
-                        
+
                         CheckGood(Settings.G_Affixes, drawRect);
                         break;
 
                     case "Shield":
-                        
+
                         CheckLife(Settings.S_Life);
                         CheckDefense(Settings.S_EnergyShield);
                         CheckResist(Settings.S_TotalRes);
@@ -575,12 +348,12 @@ namespace InventoryItemsAnalyzer
                         CheckSpellElemDamage(Settings.S_SpellDamage);
                         CheckSpellCrit(Settings.S_SpellCritChance);
                         CheckComboLife(Settings.S_LifeCombo);
-                        
+
                         CheckGood(Settings.S_Affixes, drawRect);
                         break;
 
                     case "Belt":
-                        
+
                         CheckLife(Settings.Be_Life);
                         CheckEnergyShieldJewel(Settings.Be_EnergyShield);
                         CheckResist(Settings.Be_TotalRes);
@@ -588,7 +361,7 @@ namespace InventoryItemsAnalyzer
                         CheckWED(Settings.Be_WeaponElemDamage);
                         CheckFlaskReduced(Settings.Be_FlaskReduced);
                         CheckFlaskDuration(Settings.Be_FlaskDuration);
-                        
+
                         CheckGood(Settings.Be_Affixes, drawRect);
                         break;
 
@@ -606,12 +379,12 @@ namespace InventoryItemsAnalyzer
                         CheckIntelligence(Settings.R_Intelligence);
                         CheckDexterity(Settings.R_Dexterity);
                         CheckMana(Settings.R_Mana);
-                        
+
                         CheckGood(Settings.R_Affixes, drawRect);
                         break;
 
                     case "Amulet":
-                        
+
                         CheckLife(Settings.A_Life);
                         CheckEnergyShieldJewel(Settings.A_EnergyShield);
                         CheckResist(Settings.A_TotalRes);
@@ -625,97 +398,97 @@ namespace InventoryItemsAnalyzer
                         CheckIntelligence(Settings.A_Intelligence);
                         CheckDexterity(Settings.A_Dexterity);
                         CheckMana(Settings.A_Mana);
-                        
+
                         CheckGood(Settings.A_Affixes, drawRect);
                         break;
 
                     case "Dagger":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "Rune Dagger":
                         CheckCastWeapon();
-                        
+
                         CheckGood(Settings.Wc_Affixes, drawRect);
                         break;
 
                     case "Wand":
                         CheckCastWeapon();
-                        
+
                         CheckGood(Settings.Wc_Affixes, drawRect);
                         break;
 
                     case "Sceptre":
                         CheckCastWeapon();
-                        
+
                         CheckGood(Settings.Wc_Affixes, drawRect);
                         break;
 
                     case "Thrusting One Hand Sword":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "Staff":
                         CheckCastWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "Warstaff":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "Claw":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "One Hand Sword":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "Two Hand Sword":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "One Hand Axe":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "Two Hand Axe":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "One Hand Mace":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "Two Hand Mace":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
                     case "Bow":
                         CheckAttackWeapon();
-                        
+
                         CheckGood(Settings.Wa_Affixes, drawRect);
                         break;
 
@@ -725,15 +498,11 @@ namespace InventoryItemsAnalyzer
 
                 if (Settings.DebugMode)
                 {
-                    foreach (var mod in _mods)
-                    {
-                        LogMessage(mod.Record.Group + " : " + mod.StatValue[0], 10f);
-                    }
+                    foreach (var mod in _mods) LogMessage(mod.Record.Group + " : " + mod.StatValue[0], 10f);
 
                     LogMessage(_totalWeight.ToString(), 10f);
                     LogMessage("--------------------", 10f);
                 }
-
             }
         }
 
@@ -744,16 +513,14 @@ namespace InventoryItemsAnalyzer
         private void DrawHighItemLevel(List<RectangleF> HighItemLevel)
         {
             foreach (var position in HighItemLevel)
-            {
                 if (Settings.StarOrBorder)
                 {
-                    RectangleF border = new RectangleF
+                    var border = new RectangleF
                     {
                         X = position.X + 8, Y = position.Y + 8, Width = position.Width - 6, Height = position.Height - 6
                     };
                     Graphics.DrawFrame(border, Settings.ColorAll, 1);
                 }
-            }
         }
 
         #endregion
@@ -765,20 +532,16 @@ namespace InventoryItemsAnalyzer
             foreach (var position in goodItems)
                 if (Settings.StarOrBorder)
                 {
-                    RectangleF border = new RectangleF
+                    var border = new RectangleF
                     {
                         X = position.X + 8, Y = position.Y + 8, Width = (position.Width - 6) / 1.5f,
                         Height = (position.Height - 6) / 1.5f
                     };
 
                     if (!Settings.Text)
-                    {
                         Graphics.DrawImage("GoodItem.png", border);
-                    }
                     else
-                    {
                         Graphics.DrawText(@" Good Item ", position.TopLeft, Settings.Color, 30);
-                    }
                 }
         }
 
@@ -791,20 +554,16 @@ namespace InventoryItemsAnalyzer
             foreach (var position in SyndicateItems)
                 if (Settings.StarOrBorder)
                 {
-                    RectangleF border = new RectangleF
+                    var border = new RectangleF
                     {
                         X = position.X + 8, Y = position.Y + 8, Width = (position.Width - 6) / 1.5f,
                         Height = (position.Height - 6) / 1.5f
                     };
 
                     if (!Settings.Text)
-                    {
                         Graphics.DrawImage("Syndicate.png", border);
-                    }
                     else
-                    {
                         Graphics.DrawText(@" Syndicate ", position.TopLeft, Settings.Color, 30);
-                    }
                 }
         }
 
@@ -817,7 +576,7 @@ namespace InventoryItemsAnalyzer
             Input.KeyDown(Keys.LControlKey);
             foreach (var position in _allItemsPos)
             {
-                Vector2 vector2 = new Vector2(position.X + 25, position.Y + 25);
+                var vector2 = new Vector2(position.X + 25, position.Y + 25);
 
                 yield return Input.SetCursorPositionSmooth(vector2 + _windowOffset);
 
@@ -833,15 +592,257 @@ namespace InventoryItemsAnalyzer
 
         #endregion
 
+        private void CheckAttackWeapon()
+        {
+            GetWeaponElemDamage();
+            GetWeaponPhysDamage();
+        }
+
+        private void CheckCastWeapon()
+        {
+            CheckSpellCrit(Settings.Wc_SpellCritChance);
+
+            CheckSpellElemDamage(Settings.Wc_TotalElemSpellDmg);
+
+            CheckSpellAddedElem(Settings.Wc_ToElemDamageSpell);
+
+            CheckCritMultiSpell(Settings.Wc_CritMult);
+
+            CheckDOTMultiplier(20);
+        }
+
+        #region Load config
+
+        #region Local Config
+
+        private void ParseConfig_BaseType()
+        {
+            var path = $"{DirectoryFullName}\\BaseType.txt";
+
+            CheckGoodBase(path);
+
+            using (var reader = new StreamReader(path))
+            {
+                var text = reader.ReadToEnd();
+
+                GoodBaseTypes = text.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
+
+                reader.Close();
+            }
+        }
+
+        private void CheckGoodBase(string path)
+        {
+            if (File.Exists(path)) return;
+
+            // Tier 1-3 NeverSink
+            var text = "Opal Ring" + "\r\n" + "Steel Ring" + "\r\n" + "Vermillion Ring" + "\r\n" +
+                       "Blue Pearl Amulet" + "\r\n" + "Bone Helmet" + "\r\n" +
+                       "Cerulean Ring" + "\r\n" + "Convoking Wand" + "\r\n" + "Crystal Belt" + "\r\n" +
+                       "Fingerless Silk Gloves" + "\r\n" + "Gripped Gloves" + "\r\n" +
+                       "Marble Amulet" + "\r\n" + "Sacrificial Garb" + "\r\n" + "Spiked Gloves" + "\r\n" +
+                       "Stygian Vise" + "\r\n" + "Two-Toned Boots" + "\r\n" +
+                       "Vanguard Belt" + "\r\n" + "Diamond Ring" + "\r\n" + "Onyx Amulet" + "\r\n" +
+                       "Two-Stone Ring" + "\r\n" + "Colossal Tower Shield" + "\r\n" +
+                       "Eternal Burgonet" + "\r\n" + "Hubris Circlet" + "\r\n" + "Lion Pelt" + "\r\n" +
+                       "Sorcerer Boots" + "\r\n" + "Sorcerer Gloves" + "\r\n" +
+                       "Titanium Spirit Shield" + "\r\n" + "Vaal Regalia" + "\r\n";
+
+
+            using (var streamWriter = new StreamWriter(path, true))
+            {
+                streamWriter.Write(text);
+                streamWriter.Close();
+            }
+        }
+
+        #endregion
+
+        private void ParsePoeNinja()
+        {
+            GoodUniques = new HashSet<string>();
+            GoodProphecies = new HashSet<string>();
+            GoodDivCards = new HashSet<string>();
+
+            if (!Settings.Update.Value)
+                return;
+
+            #region Unique
+
+            List<string> uniquesUrls;
+
+            switch (Settings.League.Value)
+            {
+                case "Temp SC":
+                    uniquesUrls = new List<string>
+                    {
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"&type=UniqueJewel&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"&type=UniqueFlask&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"&type=UniqueWeapon&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"&type=UniqueArmour&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"&type=UniqueAccessory&language=en"
+                    };
+                    break;
+
+                case "Temp HC":
+                    uniquesUrls = new List<string>
+                    {
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"&type=UniqueJewel&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"&type=UniqueFlask&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"&type=UniqueWeapon&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"&type=UniqueArmour&language=en",
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"&type=UniqueAccessory&language=en"
+                    };
+                    break;
+
+                default:
+                    uniquesUrls = new List<string>();
+                    break;
+            }
+
+            var result = new List<string>();
+
+            foreach (var url in uniquesUrls)
+                using (var wc = new WebClient())
+                {
+                    var json = wc.DownloadString(url);
+                    var o = JObject.Parse(json);
+                    foreach (var line in o?["lines"])
+                    {
+                        if (int.TryParse((string) line?["links"], out var links) &&
+                            links == 6)
+                            continue;
+
+                        if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
+                            chaosValue >= Settings.ChaosUnique.Value)
+                            result.Add((string) line?["name"]);
+                    }
+                }
+
+            GoodUniques = result.ToHashSet();
+
+            #endregion
+
+            #region Prophecy
+
+            string url2;
+
+            switch (Settings.League.Value)
+            {
+                case "Temp SC":
+                    url2 = @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                           @"&type=Prophecy&language=en";
+                    break;
+
+                case "Temp HC":
+                    url2 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                           @"&type=Prophecy&language=en";
+                    break;
+
+                default:
+                    url2 = "";
+                    break;
+            }
+
+            result.Clear();
+
+            using (var wc = new WebClient())
+            {
+                var json = wc.DownloadString(url2);
+                var o = JObject.Parse(json);
+                foreach (var line in o?["lines"])
+                    if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
+                        chaosValue >= Settings.ChaosProphecy.Value)
+                        result.Add((string) line?["name"]);
+            }
+
+            GoodProphecies = result.ToHashSet();
+
+            #endregion
+
+            #region DivCard
+
+            string url3;
+
+            switch (Settings.League.Value)
+            {
+                case "Temp SC":
+                    url3 = @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                           @"&type=DivinationCard&language=en";
+                    break;
+
+                case "Temp HC":
+                    url3 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                           @"&type=DivinationCard&language=en";
+                    break;
+
+                default:
+                    url3 = "";
+                    break;
+            }
+
+            result.Clear();
+
+            using (var wc = new WebClient())
+            {
+                var json = wc.DownloadString(url3);
+                var o = JObject.Parse(json);
+                foreach (var line in o?["lines"])
+                    if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
+                        chaosValue >= Settings.ChaosProphecy.Value)
+                        result.Add((string) line?["name"]);
+            }
+
+            GoodDivCards = result.ToHashSet();
+
+            #endregion
+
+            #region Test
+
+            // string text = "";
+            //
+            // foreach (var v in GoodProphecies)
+            // {
+            //     text += v + Environment.NewLine;
+            // }
+            //
+            // string path = $"{DirectoryFullName}\\Test.txt";
+            // using (StreamWriter streamWriter = new StreamWriter(path, true))
+            // {
+            //     streamWriter.Write(text);
+            //     streamWriter.Close();
+            // }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Supports
 
-        private int Average(IReadOnlyList<int> x) => (x[0] + x[1]) / 2;
-        
-        private int FixTierEs(string key) => 9 - int.Parse(key.Last().ToString());
+        private int Average(IReadOnlyList<int> x)
+        {
+            return (x[0] + x[1]) / 2;
+        }
+
+        private int FixTierEs(string key)
+        {
+            return 9 - int.Parse(key.Last().ToString());
+        }
 
         private bool IsVeiled()
         {
-            return _mods.Exists(mod => 
+            return _mods.Exists(mod =>
                 mod.Record.Group.Contains("VeiledSuffix") || mod.Record.Group.Contains("VeiledPrefix"));
         }
 
@@ -859,45 +860,62 @@ namespace InventoryItemsAnalyzer
 
         private bool OneSimpleMod(string textmod, int value)
         {
-            return _mods.Exists(mod =>
-                mod.Record.Group.Contains(textmod) &&
-                mod.StatValue[0] >= value);
+            try
+            {
+                return _mods.Exists(mod =>
+                    mod.Record.Group.Contains(textmod) &&
+                    mod.StatValue[0] >= value);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         protected void CheckDefense(int value, int weight = 1)
         {
-            foreach (var VARIABLE in _mods.Where(mod => 
-                (mod.Record.Group.Contains("DefencesPercent") || mod.Record.Group.Contains("BaseLocalDefences")) && !mod.Record.Group.Contains("And") &&
-                mod.Tier <= value && mod.Tier > 0))
+            try
             {
-                _totalWeight += weight;
+                foreach (var VARIABLE in _mods.Where(mod =>
+                    (mod.Record.Group.Contains("DefencesPercent") || mod.Record.Group.Contains("BaseLocalDefences")) &&
+                    !mod.Record.Group.Contains("And") &&
+                    mod.Tier <= value && mod.Tier > 0))
+                    _totalWeight += weight;
+            }
+            catch
+            {
+                // ignored
             }
         }
-        
+
         protected void CheckResist(int value, int weight = 1)
         {
-            int elemRes = 0;
-
-            var aaaa = _mods.Count(m => m.Record.Group.Contains("Resist"));
-            var bbbb = _mods.Count;
-            
-            LogMessage(aaaa.ToString() ,10f);
-            LogMessage(bbbb.ToString() ,10f);
-            
-            foreach (var mod in _mods.Where(m => m.Record.Group.Contains("Resist")))
+            try
             {
-                if (mod.Record.Group.Contains("AllResistances"))
-                    elemRes += mod.StatValue[0] * 3;
-                
-                if (mod.Record.Group.Contains("And"))
-                    elemRes += mod.StatValue[0] * 2;
-                else
-                    elemRes += mod.StatValue[0];
+                var elemRes = 0;
+
+                var aaaa = _mods.Count(m => m.Record.Group.Contains("Resist"));
+                var bbbb = _mods.Count;
+
+                LogMessage(aaaa.ToString(), 10f);
+                LogMessage(bbbb.ToString(), 10f);
+
+                foreach (var mod in _mods.Where(m => m.Record.Group.Contains("Resist")))
+                {
+                    if (mod.Record.Group.Contains("AllResistances"))
+                        elemRes += mod.StatValue[0] * 3;
+
+                    if (mod.Record.Group.Contains("And"))
+                        elemRes += mod.StatValue[0] * 2;
+                    else
+                        elemRes += mod.StatValue[0];
+                }
+
+                if (elemRes >= value) _totalWeight += weight;
             }
-
-            if (elemRes >= value)
+            catch
             {
-                _totalWeight += weight;
+                // ignored
             }
         }
 
@@ -912,13 +930,13 @@ namespace InventoryItemsAnalyzer
             if (OneSimpleMod("Strength", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckIntelligence(int value, int weight = 1)
         {
             if (OneSimpleMod("Intelligence", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckDexterity(int value, int weight = 1)
         {
             if (OneSimpleMod("Dexterity", value))
@@ -927,12 +945,17 @@ namespace InventoryItemsAnalyzer
 
         protected void CheckComboLife(int value, int weight = 1)
         {
-            if (_mods.Exists(mod => 
-                (mod.Record.Group.Contains("BaseLocalDefencesAndLife") && 
-                 mod.Tier <= value
-                 && mod.Tier > 0)))
+            try
             {
-                _totalWeight += weight;
+                if (_mods.Exists(mod =>
+                    mod.Record.Group.Contains("BaseLocalDefencesAndLife") &&
+                    mod.Tier <= value
+                    && mod.Tier > 0))
+                    _totalWeight += weight;
+            }
+            catch
+            {
+                // ignored
             }
         }
 
@@ -944,98 +967,114 @@ namespace InventoryItemsAnalyzer
 
         protected void CheckFlatPhys(int value, int weight = 1)
         {
-            if (_mods.Exists(mod => mod.Record.Group == "PhysicalDamage" && 
-                                   Average(mod.StatValue) >= value))
-                _totalWeight += weight;
+            try
+            {
+                if (_mods.Exists(mod => mod.Record.Group == "PhysicalDamage" &&
+                                        Average(mod.StatValue) >= value))
+                    _totalWeight += weight;
+            }
+            catch
+            {
+                // ignored
+            }
         }
-        
+
         protected void CheckWED(int value, int weight = 1)
         {
             if (OneSimpleMod("IncreasedWeaponElementalDamagePercent", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckCritMultiGlobal(int value, int weight = 1)
         {
             if (OneSimpleMod("CriticalStrikeMultiplier", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckCritMultiSpell(int value, int weight = 1)
         {
             if (OneSimpleMod("SpellCriticalStrikeMultiplier", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckGlobalCritChance(int value, int weight = 1)
         {
             if (OneSimpleMod("CriticalStrikeChanceIncrease", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckMana(int value, int weight = 1)
         {
             if (OneSimpleMod("IncreasedMana", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckMoveSpeed(int value, int weight = 1)
         {
             if (OneSimpleMod("MovementVelocity", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckAttackSpeed(int value, int weight = 1)
         {
             if (OneSimpleMod("IncreasedAttackSpeed", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckEnergyShieldJewel(int value, int weight = 1)
         {
-            foreach (var mod in _mods.Where(mod => mod.Record.Group.Contains("EnergyShield")))
+            try
             {
-                var tier = mod.Tier > 0 ? mod.Tier : FixTierEs(mod.Record.Key);
-
-                if (tier <= value)
+                foreach (var mod in _mods.Where(mod => mod.Record.Group.Contains("EnergyShield")))
                 {
-                    _totalWeight += weight;
+                    var tier = mod.Tier > 0 ? mod.Tier : FixTierEs(mod.Record.Key);
+
+                    if (tier <= value) _totalWeight += weight;
                 }
             }
+            catch
+            {
+                // ignored
+            }
         }
-        
+
         protected void CheckSpellElemDamage(int value, int weight = 1)
         {
-            int totalValue = 0;
-            
-            foreach (var mod in _mods.Where(mod =>
-                mod.Record.Group.Equals("SpellDamage") && _incElemDmg.Contains(mod.Record.Group)))
+            try
             {
-                totalValue += mod.StatValue[0];
+                var totalValue = 0;
+
+                foreach (var mod in _mods.Where(mod =>
+                    mod.Record.Group.Equals("SpellDamage") && _incElemDmg.Contains(mod.Record.Group)))
+                    totalValue += mod.StatValue[0];
+
+                if (totalValue >= value)
+                    _totalWeight += weight;
             }
-            
-            if (totalValue >= value)
-                _totalWeight += weight;
+            catch
+            {
+                // ignored
+            }
         }
-        
+
         protected void CheckFlaskReduced(int value, int weight = 1)
         {
             if (OneSimpleMod("BeltFlaskCharges", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckFlaskDuration(int value, int weight = 1)
         {
             if (OneSimpleMod("BeltFlaskDuration", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckCastSpeed(int value, int weight = 1)
         {
             if (OneSimpleMod("IncreasedCastSpeed", value))
                 _totalWeight += weight;
         }
-        
+
         protected void CheckSpellCrit(int value, int weight = 1)
         {
             if (OneSimpleMod("SpellCriticalStrikeChanceIncrease", value))
@@ -1044,17 +1083,22 @@ namespace InventoryItemsAnalyzer
 
         protected void CheckSpellAddedElem(int value, int weight = 1)
         {
-            int totalValue = 0;
-            
-            foreach (var mod in _mods.Where(mod => mod.Record.Group.Contains("SpellAddedElementalDamage")))
+            try
             {
-                totalValue += Average(mod.StatValue);
+                var totalValue = 0;
+
+                foreach (var mod in _mods.Where(mod => mod.Record.Group.Contains("SpellAddedElementalDamage")))
+                    totalValue += Average(mod.StatValue);
+
+                if (totalValue >= value)
+                    _totalWeight += weight;
             }
-            
-            if (totalValue >= value)
-                _totalWeight += weight;
+            catch
+            {
+                // ignored
+            }
         }
-        
+
         protected void CheckDOTMultiplier(int value, int weight = 1)
         {
             if (OneSimpleMod("DamageOverTimeMultiplier", value))
@@ -1066,14 +1110,15 @@ namespace InventoryItemsAnalyzer
             var component = _item.GetComponent<Weapon>();
             var mods = _item.GetComponent<Mods>().ItemMods;
 
-            float attackSpeed = 1f / (component.AttackTime / 1000f);
-            
+            var attackSpeed = 1f / (component.AttackTime / 1000f);
+
             attackSpeed *= 1f + mods.GetStatValue("LocalIncreasedAttackSpeed") / 100f;
-            
-            float phyDmg = (component.DamageMin + component.DamageMax) / 2f + mods.GetAverageStatValue("LocalAddedPhysicalDamage");
-            
+
+            var phyDmg = (component.DamageMin + component.DamageMax) / 2f +
+                         mods.GetAverageStatValue("LocalAddedPhysicalDamage");
+
             phyDmg *= 1f + (mods.GetStatValue("LocalIncreasedPhysicalDamagePercent") + 20) / 100f;
-            
+
             return phyDmg * attackSpeed;
         }
 
@@ -1082,37 +1127,18 @@ namespace InventoryItemsAnalyzer
             var component = _item.GetComponent<Weapon>();
             var mods = _item.GetComponent<Mods>().ItemMods;
 
-            float attackSpeed = 1f / (component.AttackTime / 1000f);
-            
+            var attackSpeed = 1f / (component.AttackTime / 1000f);
+
             attackSpeed *= 1f + mods.GetStatValue("LocalIncreasedAttackSpeed") / 100f;
-            
-            float elemDmg = mods.GetAverageStatValue("LocalAddedColdDamage") 
-                            + mods.GetAverageStatValue("LocalAddedFireDamage")
-                            + mods.GetAverageStatValue("LocalAddedLightningDamage");
+
+            var elemDmg = mods.GetAverageStatValue("LocalAddedColdDamage")
+                          + mods.GetAverageStatValue("LocalAddedFireDamage")
+                          + mods.GetAverageStatValue("LocalAddedLightningDamage");
 
             return elemDmg * attackSpeed;
         }
 
         #endregion
-
-        private void CheckAttackWeapon()
-        {
-            GetWeaponElemDamage();
-            GetWeaponPhysDamage();
-        }
-
-        private void CheckCastWeapon()
-        {
-            CheckSpellCrit(Settings.Wc_SpellCritChance);
-            
-            CheckSpellElemDamage(Settings.Wc_TotalElemSpellDmg);
-            
-            CheckSpellAddedElem(Settings.Wc_ToElemDamageSpell);
-
-            CheckCritMultiSpell(Settings.Wc_CritMult);
-
-            CheckDOTMultiplier(20);
-        }
     }
 
     #region Get item Stats
@@ -1121,14 +1147,28 @@ namespace InventoryItemsAnalyzer
     {
         public static float GetStatValue(this List<ItemMod> mods, string name)
         {
-            var m = mods.FirstOrDefault(mod => mod.Name == name);
-            return m?.Value1 ?? 0;
+            try
+            {
+                var m = mods.FirstOrDefault(mod => mod.Name == name);
+                return m?.Value1 ?? 0;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         public static float GetAverageStatValue(this List<ItemMod> mods, string name)
         {
-            var m = mods.FirstOrDefault(mod => mod.Name == name);
-            return (m?.Value1 + m?.Value2) / 2 ?? 0;
+            try
+            {
+                var m = mods.FirstOrDefault(mod => mod.Name == name);
+                return (m?.Value1 + m?.Value2) / 2 ?? 0;
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 

@@ -52,18 +52,14 @@ namespace AdvancedTooltip
                     var tagChance = -1;
 
                     foreach (var tg in baseItem.Tags)
-                    {
                         if (tmp.TagChances.ContainsKey(tg))
                             tagChance = tmp.TagChances[tg];
-                    }
 
                     var moreTagChance = -1;
 
                     foreach (var tg in baseItem.MoreTagsFromPath)
-                    {
                         if (tmp.TagChances.ContainsKey(tg))
                             moreTagChance = tmp.TagChances[tg];
-                    }
 
                     #region GetOnlyValidMods
 

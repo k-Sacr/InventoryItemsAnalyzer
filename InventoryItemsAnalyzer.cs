@@ -27,7 +27,7 @@ namespace InventoryItemsAnalyzer
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
 
-        private readonly string _leagueName = "Harvest";
+        private readonly string _leagueName = "Heist";
         private readonly List<RectangleF> _veilItemsPos;
 
         private int _countInventory;

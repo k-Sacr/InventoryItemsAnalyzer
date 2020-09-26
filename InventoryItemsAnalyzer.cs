@@ -46,7 +46,7 @@ namespace InventoryItemsAnalyzer
         private HashSet<string> GoodBaseTypes;
         private HashSet<string> GoodDivCards;
         private HashSet<string> GoodProphecies;
-        private HashSet<string> GoodUniques;
+        private HashSet<string> ShitUniques;
 
         public InventoryItemsAnalyzer()
         {
@@ -204,7 +204,7 @@ namespace InventoryItemsAnalyzer
                 #region Filter trash uniques
 
                 if (modsComponent?.ItemRarity == ItemRarity.Unique &&
-                    !GoodUniques.Contains(modsComponent.UniqueName) &&
+                    ShitUniques.Contains(modsComponent.UniqueName) &&
                     !item.HasComponent<Map>() &&
                     item.GetComponent<Sockets>()?.LargestLinkSize != 6
                 )
@@ -676,7 +676,7 @@ namespace InventoryItemsAnalyzer
 
         private void ParsePoeNinja()
         {
-            GoodUniques = new HashSet<string>();
+            ShitUniques = new HashSet<string>();
             GoodProphecies = new HashSet<string>();
             GoodDivCards = new HashSet<string>();
 
@@ -740,12 +740,12 @@ namespace InventoryItemsAnalyzer
                             continue;
 
                         if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                            chaosValue >= Settings.ChaosUnique.Value)
+                            chaosValue < Settings.ChaosUnique.Value)
                             result.Add((string) line?["name"]);
                     }
                 }
 
-            GoodUniques = result.ToHashSet();
+            ShitUniques = result.ToHashSet();
 
             #endregion
 

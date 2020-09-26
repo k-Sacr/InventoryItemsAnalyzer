@@ -170,6 +170,18 @@ namespace InventoryItemsAnalyzer
 
                 #endregion
 
+                // vendor jewels for alts
+                if (modsComponent?.ItemRarity == ItemRarity.Rare &&
+                    modsComponent?.Identified == true &&
+                    item.Path.Contains("Jewel"))
+                    _allItemsPos.Add(drawRect);
+
+                // vendor talismans for alts
+                if (modsComponent?.ItemRarity == ItemRarity.Rare &&
+                    modsComponent?.Identified == true &&
+                    item.Path.Contains("Talisman"))
+                    _allItemsPos.Add(drawRect);
+
                 #region Prophecy
 
                 if (item.HasComponent<Prophecy>())

@@ -252,7 +252,11 @@ namespace InventoryItemsAnalyzer
                     if (modsComponent.ItemLevel >= Settings.ItemLevelInfluence &&
                         (baseComponent.isElder || baseComponent.isShaper || baseComponent.isCrusader ||
                          baseComponent.isHunter || baseComponent.isRedeemer || baseComponent.isWarlord))
+                    {
                         highItemLevel = true;
+                        // dont vendor influenced
+                        continue;
+                    }
                 }
 
                 #endregion

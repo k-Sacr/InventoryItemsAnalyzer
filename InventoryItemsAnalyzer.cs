@@ -44,9 +44,9 @@ namespace InventoryItemsAnalyzer
         private Coroutine CoroutineWorker;
 
         private HashSet<string> GoodBaseTypes;
-        private HashSet<string> GoodDivCards;
+        private HashSet<string> ShitDivCards;
         private HashSet<string> GoodProphecies;
-        private HashSet<string> GoodUniques;
+        private HashSet<string> ShitUniques;
 
         public InventoryItemsAnalyzer()
         {
@@ -170,6 +170,22 @@ namespace InventoryItemsAnalyzer
 
                 #endregion
 
+                #region Vendor for alts
+
+                if (Settings.VendorRareJewels &&
+                    modsComponent?.ItemRarity == ItemRarity.Rare &&
+                    modsComponent?.Identified == true &&
+                    item.Path.Contains("Jewel"))
+                    _allItemsPos.Add(drawRect);
+
+                if (Settings.VendorTalismans &&
+                    modsComponent?.ItemRarity == ItemRarity.Rare &&
+                    modsComponent?.Identified == true &&
+                    item.Path.Contains("Talisman"))
+                    _allItemsPos.Add(drawRect);                
+
+                #endregion
+
                 #region Prophecy
 
                 if (item.HasComponent<Prophecy>())
@@ -184,15 +200,24 @@ namespace InventoryItemsAnalyzer
                 #region Div Card
 
                 if (bit.ClassName.Equals("DivinationCard"))
-                    if (GoodDivCards.Contains(bit.BaseName))
+                    if (ShitDivCards.Contains(bit.BaseName))
+                    {
+                        if (Settings.VendorShitDivCards)
+                        {
+                            _allItemsPos.Add(drawRect);
+                        }
+                    }
+                    else
+                    {
                         _goodItemsPos.Add(drawRect);
+                    }
 
                 #endregion
 
                 #region Filter trash uniques
 
                 if (modsComponent?.ItemRarity == ItemRarity.Unique &&
-                    !GoodUniques.Contains(modsComponent.UniqueName) &&
+                    ShitUniques.Contains(modsComponent.UniqueName) &&
                     !item.HasComponent<Map>() &&
                     item.GetComponent<Sockets>()?.LargestLinkSize != 6
                 )
@@ -240,7 +265,11 @@ namespace InventoryItemsAnalyzer
                     if (modsComponent.ItemLevel >= Settings.ItemLevelInfluence &&
                         (baseComponent.isElder || baseComponent.isShaper || baseComponent.isCrusader ||
                          baseComponent.isHunter || baseComponent.isRedeemer || baseComponent.isWarlord))
+                    {
                         highItemLevel = true;
+                        // dont vendor influenced
+                        continue;
+                    }
                 }
 
                 #endregion
@@ -660,9 +689,9 @@ namespace InventoryItemsAnalyzer
 
         private void ParsePoeNinja()
         {
-            GoodUniques = new HashSet<string>();
+            ShitUniques = new HashSet<string>();
             GoodProphecies = new HashSet<string>();
-            GoodDivCards = new HashSet<string>();
+            ShitDivCards = new HashSet<string>();
 
             if (!Settings.Update.Value)
                 return;
@@ -724,12 +753,12 @@ namespace InventoryItemsAnalyzer
                             continue;
 
                         if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                            chaosValue >= Settings.ChaosUnique.Value)
+                            chaosValue < Settings.ChaosUnique.Value)
                             result.Add((string) line?["name"]);
                     }
                 }
 
-            GoodUniques = result.ToHashSet();
+            ShitUniques = result.ToHashSet();
 
             #endregion
 
@@ -799,11 +828,11 @@ namespace InventoryItemsAnalyzer
                 var o = JObject.Parse(json);
                 foreach (var line in o?["lines"])
                     if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                        chaosValue >= Settings.ChaosProphecy.Value)
+                        chaosValue < Settings.ChaosProphecy.Value)
                         result.Add((string) line?["name"]);
             }
 
-            GoodDivCards = result.ToHashSet();
+            ShitDivCards = result.ToHashSet();
 
             #endregion
 

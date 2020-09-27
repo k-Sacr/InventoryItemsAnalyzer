@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\PoeHelper\Plugins\Compiled\InventoryItemsAnalyzer\</OutputPath>
+    <OutputPath>..\..\..\..\PoEHelper\Plugins\Compiled\InventoryItemsAnalyzer\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -36,9 +36,9 @@
     <Reference Include="netstandard">
       <Private>True</Private>
     </Reference>
-	<Reference Include="ExileCore">
+    <Reference Include="ExileCore">
       <HintPath>..\..\..\..\PoeHelper\ExileCore.dll</HintPath>
-	  <Private>False</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\..\PoeHelper\Newtonsoft.Json.dll</HintPath>

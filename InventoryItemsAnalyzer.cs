@@ -44,7 +44,7 @@ namespace InventoryItemsAnalyzer
         private Coroutine CoroutineWorker;
 
         private HashSet<string> GoodBaseTypes;
-        private HashSet<string> GoodDivCards;
+        private HashSet<string> ShitDivCards;
         private HashSet<string> GoodProphecies;
         private HashSet<string> ShitUniques;
 
@@ -170,17 +170,21 @@ namespace InventoryItemsAnalyzer
 
                 #endregion
 
-                // vendor jewels for alts
-                if (modsComponent?.ItemRarity == ItemRarity.Rare &&
+                #region Vendor for alts
+
+                if (Settings.VendorRareJewels &&
+                    modsComponent?.ItemRarity == ItemRarity.Rare &&
                     modsComponent?.Identified == true &&
                     item.Path.Contains("Jewel"))
                     _allItemsPos.Add(drawRect);
 
-                // vendor talismans for alts
-                if (modsComponent?.ItemRarity == ItemRarity.Rare &&
+                if (Settings.VendorTalismans &&
+                    modsComponent?.ItemRarity == ItemRarity.Rare &&
                     modsComponent?.Identified == true &&
                     item.Path.Contains("Talisman"))
-                    _allItemsPos.Add(drawRect);
+                    _allItemsPos.Add(drawRect);                
+
+                #endregion
 
                 #region Prophecy
 
@@ -196,8 +200,17 @@ namespace InventoryItemsAnalyzer
                 #region Div Card
 
                 if (bit.ClassName.Equals("DivinationCard"))
-                    if (GoodDivCards.Contains(bit.BaseName))
+                    if (ShitDivCards.Contains(bit.BaseName))
+                    {
+                        if (Settings.VendorShitDivCards)
+                        {
+                            _allItemsPos.Add(drawRect);
+                        }
+                    }
+                    else
+                    {
                         _goodItemsPos.Add(drawRect);
+                    }
 
                 #endregion
 
@@ -678,7 +691,7 @@ namespace InventoryItemsAnalyzer
         {
             ShitUniques = new HashSet<string>();
             GoodProphecies = new HashSet<string>();
-            GoodDivCards = new HashSet<string>();
+            ShitDivCards = new HashSet<string>();
 
             if (!Settings.Update.Value)
                 return;
@@ -815,11 +828,11 @@ namespace InventoryItemsAnalyzer
                 var o = JObject.Parse(json);
                 foreach (var line in o?["lines"])
                     if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                        chaosValue >= Settings.ChaosProphecy.Value)
+                        chaosValue < Settings.ChaosProphecy.Value)
                         result.Add((string) line?["name"]);
             }
 
-            GoodDivCards = result.ToHashSet();
+            ShitDivCards = result.ToHashSet();
 
             #endregion
 

@@ -182,7 +182,13 @@ namespace InventoryItemsAnalyzer
                     modsComponent?.ItemRarity == ItemRarity.Rare &&
                     modsComponent?.Identified == true &&
                     item.Path.Contains("Talisman"))
-                    _allItemsPos.Add(drawRect);                
+                    _allItemsPos.Add(drawRect);
+
+                if (Settings.VendorBreachRings &&
+                    modsComponent?.ItemRarity == ItemRarity.Rare &&
+                    modsComponent?.Identified == true &&
+                    item.Path.Contains("BreachRing"))
+                    _allItemsPos.Add(drawRect);              
 
                 #endregion
 

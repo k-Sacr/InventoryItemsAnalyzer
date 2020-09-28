@@ -704,6 +704,9 @@ namespace InventoryItemsAnalyzer
         
         [Menu("VendorShitDivCards")]
         public ToggleNode VendorShitDivCards { get; set; } = new ToggleNode(false);
+
+        [Menu("VendorBreachRings")]
+        public ToggleNode VendorBreachRings { get; set; } = new ToggleNode(true);
         
         #endregion
     }

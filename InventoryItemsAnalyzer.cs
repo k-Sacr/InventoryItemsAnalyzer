@@ -223,7 +223,7 @@ namespace InventoryItemsAnalyzer
                 #region Filter trash uniques
 
                 if (modsComponent?.ItemRarity == ItemRarity.Unique &&
-                    ShitUniques.Contains(modsComponent.UniqueName) &&
+                    !ShitUniques.Contains(modsComponent.UniqueName) &&
                     !item.HasComponent<Map>() &&
                     item.GetComponent<Sockets>()?.LargestLinkSize != 6
                 )
@@ -232,7 +232,7 @@ namespace InventoryItemsAnalyzer
                         continue;
 
                     LogMessage(modsComponent.UniqueName);
-                    _allItemsPos.Add(drawRect);
+                    _goodItemsPos.Add(drawRect);
                     continue;
                 }
 
@@ -846,7 +846,7 @@ namespace InventoryItemsAnalyzer
 
             // string text = "";
             //
-            // foreach (var v in GoodProphecies)
+            // foreach (var v in ShitUniques)
             // {
             //     text += v + Environment.NewLine;
             // }

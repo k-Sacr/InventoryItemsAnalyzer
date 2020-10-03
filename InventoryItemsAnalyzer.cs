@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -699,6 +700,9 @@ namespace InventoryItemsAnalyzer
             GoodProphecies = new HashSet<string>();
             ShitDivCards = new HashSet<string>();
 
+            IFormatProvider formatter = new NumberFormatInfo { NumberDecimalSeparator = "." };
+            float chaosValue;
+            
             if (!Settings.Update.Value)
                 return;
 
@@ -758,8 +762,9 @@ namespace InventoryItemsAnalyzer
                             links == 6)
                             continue;
 
-                        if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                            chaosValue < Settings.ChaosUnique.Value)
+                        chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
+                        
+                        if (chaosValue < Settings.ChaosUnique.Value)
                             result.Add((string) line?["name"]);
                     }
                 }
@@ -796,9 +801,12 @@ namespace InventoryItemsAnalyzer
                 var json = wc.DownloadString(url2);
                 var o = JObject.Parse(json);
                 foreach (var line in o?["lines"])
-                    if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                        chaosValue >= Settings.ChaosProphecy.Value)
+                {
+                    chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
+                    
+                    if (chaosValue >= Settings.ChaosProphecy.Value)
                         result.Add((string) line?["name"]);
+                }
             }
 
             GoodProphecies = result.ToHashSet();
@@ -833,9 +841,12 @@ namespace InventoryItemsAnalyzer
                 var json = wc.DownloadString(url3);
                 var o = JObject.Parse(json);
                 foreach (var line in o?["lines"])
-                    if (float.TryParse((string) line?["chaosValue"], out var chaosValue) &&
-                        chaosValue < Settings.ChaosProphecy.Value)
+                {
+                    chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
+                    
+                    if (chaosValue < Settings.ChaosProphecy.Value)
                         result.Add((string) line?["name"]);
+                }
             }
 
             ShitDivCards = result.ToHashSet();
@@ -852,7 +863,7 @@ namespace InventoryItemsAnalyzer
             // }
             //
             // string path = $"{DirectoryFullName}\\Test.txt";
-            // using (StreamWriter streamWriter = new StreamWriter(path, true))
+            // using (StreamWriter streamWriter = new StreamWriter(path, false))
             // {
             //     streamWriter.Write(text);
             //     streamWriter.Close();

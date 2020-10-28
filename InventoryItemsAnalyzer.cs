@@ -260,8 +260,16 @@ namespace InventoryItemsAnalyzer
 
                 _mods.Clear();
 
-                _mods = itemMods
-                    .Select(it => new ModValue(it, GameController.Files, modsComponent.ItemLevel, bit)).ToList();
+                try
+                {
+                    _mods = itemMods
+                        .Select(it => new ModValue(it, GameController.Files, modsComponent.ItemLevel, bit)).ToList();
+                }
+                catch (Exception e)
+                {
+                    LogMessage(e.StackTrace);
+                    continue;
+                }
 
                 _item = item;
 

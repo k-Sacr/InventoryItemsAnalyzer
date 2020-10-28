@@ -15,7 +15,14 @@ namespace AdvancedTooltip
         public ModValue(ItemMod mod, FilesContainer fs, int iLvl, BaseItemType baseItem)
         {
             var baseClassName = baseItem.ClassName.ToLower().Replace(' ', '_');
-            Record = fs.Mods.records[mod.RawName];
+            try
+            {
+                Record = fs.Mods.records[mod.RawName];
+            }
+            catch (Exception)
+            {
+                Record = null;
+            }
             AffixType = Record.AffixType;
             AffixText = string.IsNullOrEmpty(Record.UserFriendlyName) ? Record.Key : Record.UserFriendlyName;
             IsCrafted = Record.Domain == ModDomain.Master;

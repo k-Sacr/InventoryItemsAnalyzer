@@ -15,6 +15,7 @@ namespace InventoryItemsAnalyzer
         {
             _gameController = gameController;
             InitializedModRecords = false;
+            InitializedModRecordsByTier = false;
         }
 
         public bool InitializedModRecords { get; private set; }

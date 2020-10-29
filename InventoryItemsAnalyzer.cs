@@ -91,9 +91,19 @@ namespace InventoryItemsAnalyzer
 
         public override Job Tick()
         {
-            if (!_modRecordCache.InitializedModRecords ||
-                !_modRecordCache.InitializedModRecordsByTier)
-                _modRecordCache.Initialize();
+            try
+            {
+                if (_modRecordCache?.InitializedModRecords != true ||
+                    _modRecordCache?.InitializedModRecordsByTier != true)
+                {
+                    _modRecordCache?.Initialize();
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
             return base.Tick();
         }
 
@@ -261,7 +271,10 @@ namespace InventoryItemsAnalyzer
                 _mods.Clear();
 
                 _mods = itemMods
-                    .Select(it => new ModValue(it, _modRecordCache, modsComponent.ItemLevel, bit)).ToList();
+                    .Where(m =>
+                        m?.RawName?.Length > 1)
+                    .Select(it =>
+                        new ModValue(it, _modRecordCache, modsComponent.ItemLevel, bit)).ToList();
 
                 _item = item;
 

@@ -696,13 +696,20 @@ namespace InventoryItemsAnalyzer
         [Menu("ItemLevelNoInfluence", "Set min ItemLevet for highlighted (ItemBase)")]
         public RangeNode<int> ItemLevelNoInfluence { get; set; }
 
-        [Menu("VendorRareJewels")] public ToggleNode VendorRareJewels { get; set; } = new ToggleNode(true);
+        [Menu("Vendor rare jewels")]
+        public ToggleNode VendorRareJewels { get; set; } = new ToggleNode(true);
+        
+        [Menu("Vendor talismans")]
+        public ToggleNode VendorTalismans { get; set; } = new ToggleNode(true);
+        
+        [Menu("Vendor shit div cards")]
+        public ToggleNode VendorShitDivCards { get; set; } = new ToggleNode(true);
 
-        [Menu("VendorTalismans")] public ToggleNode VendorTalismans { get; set; } = new ToggleNode(true);
-
-        [Menu("VendorShitDivCards")] public ToggleNode VendorShitDivCards { get; set; } = new ToggleNode(false);
-
-        [Menu("VendorBreachRings")] public ToggleNode VendorBreachRings { get; set; } = new ToggleNode(true);
+        [Menu("Vendor breach rings")]
+        public ToggleNode VendorBreachRings { get; set; } = new ToggleNode(true);
+        
+        [Menu("Treat veiled as regular item")]
+        public ToggleNode TreatVeiledAsRegularItem { get; set; } = new ToggleNode(true);
 
         #endregion
     }

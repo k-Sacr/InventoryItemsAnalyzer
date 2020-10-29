@@ -292,7 +292,8 @@ namespace InventoryItemsAnalyzer
                 if (highItemLevel)
                     _highItemsPos.Add(drawRect);
 
-                if (IsVeiled())
+                if (!Settings.TreatVeiledAsRegularItem &&
+                    IsVeiled())
                 {
                     _veilItemsPos.Add(drawRect);
                     continue;

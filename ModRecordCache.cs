@@ -28,7 +28,7 @@ namespace InventoryItemsAnalyzer
                 try
                 {
                     var records = _gameController?.Files?.Mods?.records;
-                    if (records?.Count > 1)
+                    if (records?.Count > 20000) // 21179 is 3.12 value
                     {
                         ModRecords = new Dictionary<string, ModsDat.ModRecord>();
                         foreach (var pair in records) ModRecords.Add(pair.Key, pair.Value);
@@ -47,7 +47,7 @@ namespace InventoryItemsAnalyzer
                 try
                 {
                     var records = _gameController?.Files?.Mods?.recordsByTier;
-                    if (records?.Count > 1)
+                    if (records?.Count > 4000) // 4234 is 3.12 value
                     {
                         ModRecordsByTier = new Dictionary<Tuple<string, ModType>, List<ModsDat.ModRecord>>();
                         foreach (var pair in records) ModRecordsByTier.Add(pair.Key, pair.Value);

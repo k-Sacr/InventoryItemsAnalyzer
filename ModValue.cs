@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ExileCore;
+using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.FilesInMemory;
 using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.PoEMemory.Models;
@@ -12,12 +13,12 @@ namespace InventoryItemsAnalyzer
 {
     public class ModValue
     {
-        public ModValue(ItemMod mod, ModRecordCache modRecordCache, int iLvl, BaseItemType baseItem)
+        public ModValue(ItemMod mod, FilesContainer fs, int iLvl, BaseItemType baseItem)
         {
             try
             {
                 var baseClassName = baseItem.ClassName.ToLower().Replace(' ', '_');
-                Record = modRecordCache.ModRecords[mod.RawName];
+                Record = fs.Mods.records[mod.RawName];
                 AffixType = Record.AffixType;
                 AffixText = string.IsNullOrEmpty(Record.UserFriendlyName) ? Record.Key : Record.UserFriendlyName;
                 IsCrafted = Record.Domain == ModDomain.Master;
@@ -25,7 +26,7 @@ namespace InventoryItemsAnalyzer
                 Tier = -1;
                 var subOptimalTierDistance = 0;
 
-                if (modRecordCache.ModRecordsByTier.TryGetValue(Tuple.Create(Record.Group, Record.AffixType),
+                if (fs.Mods.recordsByTier.TryGetValue(Tuple.Create(Record.Group, Record.AffixType),
                     out var allTiers))
                 {
                     var tierFound = false;

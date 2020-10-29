@@ -31,7 +31,6 @@ namespace InventoryItemsAnalyzer
         private int _idenf;
         private IngameState _ingameState;
         private Entity _item;
-        private ModRecordCache _modRecordCache;
         private List<ModValue> _mods;
         private DateTime _renderWait;
         private int _totalWeight;
@@ -61,7 +60,6 @@ namespace InventoryItemsAnalyzer
             {
                 ParseConfig_BaseType();
                 ParsePoeNinja();
-                _modRecordCache = new ModRecordCache(GameController);
             }
             catch (Exception)
             {
@@ -87,24 +85,6 @@ namespace InventoryItemsAnalyzer
             Settings.League.OnValueSelectedPre += s => { ParsePoeNinja(); };
 
             return true;
-        }
-
-        public override Job Tick()
-        {
-            try
-            {
-                if (_modRecordCache?.InitializedModRecords != true ||
-                    _modRecordCache?.InitializedModRecordsByTier != true)
-                {
-                    _modRecordCache?.Initialize();
-                }
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
-            return base.Tick();
         }
 
         public override void Render()
@@ -274,7 +254,7 @@ namespace InventoryItemsAnalyzer
                     .Where(m =>
                         m?.RawName?.Length > 1)
                     .Select(it =>
-                        new ModValue(it, _modRecordCache, modsComponent.ItemLevel, bit)).ToList();
+                        new ModValue(it, GameController.Files, modsComponent.ItemLevel, bit)).ToList();
 
                 _item = item;
 

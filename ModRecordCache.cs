@@ -9,10 +9,6 @@ namespace InventoryItemsAnalyzer
     public class ModRecordCache
     {
         private readonly GameController _gameController;
-        public bool InitializedModRecords { get; private set; }
-        public IDictionary<string, ModsDat.ModRecord> ModRecords { get; private set; }
-        public bool InitializedModRecordsByTier { get; private set; }
-        public IDictionary<Tuple<string, ModType>, List<ModsDat.ModRecord>> ModRecordsByTier { get; private set; }
 
         public ModRecordCache(
             GameController gameController)
@@ -21,20 +17,21 @@ namespace InventoryItemsAnalyzer
             InitializedModRecords = false;
         }
 
+        public bool InitializedModRecords { get; private set; }
+        public IDictionary<string, ModsDat.ModRecord> ModRecords { get; private set; }
+        public bool InitializedModRecordsByTier { get; private set; }
+        public IDictionary<Tuple<string, ModType>, List<ModsDat.ModRecord>> ModRecordsByTier { get; private set; }
+
         public void Initialize()
         {
             if (!InitializedModRecords)
-            {
                 try
                 {
                     var records = _gameController?.Files?.Mods?.records;
                     if (records?.Count > 1)
                     {
                         ModRecords = new Dictionary<string, ModsDat.ModRecord>();
-                        foreach (var pair in records)
-                        {
-                            ModRecords.Add(pair.Key, pair.Value);
-                        }
+                        foreach (var pair in records) ModRecords.Add(pair.Key, pair.Value);
                     }
                 }
                 catch (Exception)
@@ -44,21 +41,16 @@ namespace InventoryItemsAnalyzer
                 finally
                 {
                     InitializedModRecords = true;
-                }                
-            }
-            
+                }
+
             if (!InitializedModRecordsByTier)
-            {
                 try
                 {
                     var records = _gameController?.Files?.Mods?.recordsByTier;
                     if (records?.Count > 1)
                     {
                         ModRecordsByTier = new Dictionary<Tuple<string, ModType>, List<ModsDat.ModRecord>>();
-                        foreach (var pair in records)
-                        {
-                            ModRecordsByTier.Add(pair.Key, pair.Value);
-                        }
+                        foreach (var pair in records) ModRecordsByTier.Add(pair.Key, pair.Value);
                     }
                 }
                 catch (Exception)
@@ -68,8 +60,7 @@ namespace InventoryItemsAnalyzer
                 finally
                 {
                     InitializedModRecordsByTier = true;
-                }                
-            }
+                }
         }
     }
 }

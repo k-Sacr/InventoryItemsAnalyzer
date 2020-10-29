@@ -696,18 +696,14 @@ namespace InventoryItemsAnalyzer
         [Menu("ItemLevelNoInfluence", "Set min ItemLevet for highlighted (ItemBase)")]
         public RangeNode<int> ItemLevelNoInfluence { get; set; }
 
-        [Menu("VendorRareJewels")]
-        public ToggleNode VendorRareJewels { get; set; } = new ToggleNode(true);
-        
-        [Menu("VendorTalismans")]
-        public ToggleNode VendorTalismans { get; set; } = new ToggleNode(true);
-        
-        [Menu("VendorShitDivCards")]
-        public ToggleNode VendorShitDivCards { get; set; } = new ToggleNode(false);
+        [Menu("VendorRareJewels")] public ToggleNode VendorRareJewels { get; set; } = new ToggleNode(true);
 
-        [Menu("VendorBreachRings")]
-        public ToggleNode VendorBreachRings { get; set; } = new ToggleNode(true);
-        
+        [Menu("VendorTalismans")] public ToggleNode VendorTalismans { get; set; } = new ToggleNode(true);
+
+        [Menu("VendorShitDivCards")] public ToggleNode VendorShitDivCards { get; set; } = new ToggleNode(false);
+
+        [Menu("VendorBreachRings")] public ToggleNode VendorBreachRings { get; set; } = new ToggleNode(true);
+
         #endregion
     }
 }

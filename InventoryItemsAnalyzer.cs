@@ -19,35 +19,29 @@ namespace InventoryItemsAnalyzer
 {
     public class InventoryItemsAnalyzer : BaseSettingsPlugin<InventoryItemsAnalyzerSettings>
     {
-        private const string coroutineName = "InventoryItemsAnalyzer";
+        private const string COROUTINE_NAME = "InventoryItemsAnalyzer";
         private readonly List<RectangleF> _allItemsPos;
         private readonly List<RectangleF> _goodItemsPos;
         private readonly List<RectangleF> _highItemsPos;
-
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
-
-        private readonly string _leagueName = "Heist";
+        private const string LEAGUE_NAME = "Heist";
         private readonly List<RectangleF> _veilItemsPos;
-
         private int _countInventory;
         private int _idenf;
         private IngameState _ingameState;
         private Entity _item;
-
+        private ModRecordCache _modRecordCache;
         private List<ModValue> _mods;
         private DateTime _renderWait;
         private int _totalWeight;
         private TimeSpan _wait = new TimeSpan(0, 0, 0, 0, 500);
-
         private Vector2 _windowOffset;
-        private Coroutine CoroutineWorker;
-
-        private HashSet<string> GoodBaseTypes;
-        private HashSet<string> ShitDivCards;
-        private HashSet<string> GoodProphecies;
-        private HashSet<string> ShitUniques;
-        private ModRecordCache _modRecordCache;
+        private Coroutine _coroutineWorker;
+        private HashSet<string> _goodBaseTypes;
+        private HashSet<string> _goodProphecies;
+        private HashSet<string> _shitDivCards;
+        private HashSet<string> _shitUniques;
 
         public InventoryItemsAnalyzer()
         {
@@ -94,17 +88,15 @@ namespace InventoryItemsAnalyzer
 
             return true;
         }
-        
+
         public override Job Tick()
         {
             if (!_modRecordCache.InitializedModRecords ||
                 !_modRecordCache.InitializedModRecordsByTier)
-            {
                 _modRecordCache.Initialize();
-            }
             return base.Tick();
         }
-        
+
         public override void Render()
         {
             if (!_ingameState.IngameUi.InventoryPanel.IsVisible)
@@ -125,8 +117,8 @@ namespace InventoryItemsAnalyzer
 
                     if (Settings.HotKey.PressedOnce())
                     {
-                        CoroutineWorker = new Coroutine(ClickShit(), this, coroutineName);
-                        Core.ParallelRunner.Run(CoroutineWorker);
+                        _coroutineWorker = new Coroutine(ClickShit(), this, COROUTINE_NAME);
+                        Core.ParallelRunner.Run(_coroutineWorker);
                     }
                 }
 
@@ -200,7 +192,7 @@ namespace InventoryItemsAnalyzer
                     modsComponent?.ItemRarity == ItemRarity.Rare &&
                     modsComponent?.Identified == true &&
                     item.Path.Contains("BreachRing"))
-                    _allItemsPos.Add(drawRect);              
+                    _allItemsPos.Add(drawRect);
 
                 #endregion
 
@@ -210,7 +202,7 @@ namespace InventoryItemsAnalyzer
                 {
                     var prop = item.GetComponent<Prophecy>();
 
-                    if (GoodProphecies.Contains(prop?.DatProphecy?.Name)) _goodItemsPos.Add(drawRect);
+                    if (_goodProphecies.Contains(prop?.DatProphecy?.Name)) _goodItemsPos.Add(drawRect);
                 }
 
                 #endregion
@@ -218,12 +210,9 @@ namespace InventoryItemsAnalyzer
                 #region Div Card
 
                 if (bit.ClassName.Equals("DivinationCard"))
-                    if (ShitDivCards.Contains(bit.BaseName))
+                    if (_shitDivCards.Contains(bit.BaseName))
                     {
-                        if (Settings.VendorShitDivCards)
-                        {
-                            _allItemsPos.Add(drawRect);
-                        }
+                        if (Settings.VendorShitDivCards) _allItemsPos.Add(drawRect);
                     }
                     else
                     {
@@ -235,7 +224,7 @@ namespace InventoryItemsAnalyzer
                 #region Filter trash uniques
 
                 if (modsComponent?.ItemRarity == ItemRarity.Unique &&
-                    ShitUniques.Contains(modsComponent.UniqueName) &&
+                    _shitUniques.Contains(modsComponent.UniqueName) &&
                     !item.HasComponent<Map>() &&
                     item.GetComponent<Sockets>()?.LargestLinkSize != 6
                 )
@@ -294,7 +283,7 @@ namespace InventoryItemsAnalyzer
 
                 #region Item Level
 
-                if (modsComponent.ItemLevel >= Settings.ItemLevelNoInfluence && GoodBaseTypes.Contains(bit.BaseName))
+                if (modsComponent.ItemLevel >= Settings.ItemLevelNoInfluence && _goodBaseTypes.Contains(bit.BaseName))
                     highItemLevel = true;
 
                 #endregion
@@ -672,7 +661,7 @@ namespace InventoryItemsAnalyzer
             {
                 var text = reader.ReadToEnd();
 
-                GoodBaseTypes = text.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
+                _goodBaseTypes = text.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
 
                 reader.Close();
             }
@@ -707,13 +696,13 @@ namespace InventoryItemsAnalyzer
 
         private void ParsePoeNinja()
         {
-            ShitUniques = new HashSet<string>();
-            GoodProphecies = new HashSet<string>();
-            ShitDivCards = new HashSet<string>();
+            _shitUniques = new HashSet<string>();
+            _goodProphecies = new HashSet<string>();
+            _shitDivCards = new HashSet<string>();
 
-            IFormatProvider formatter = new NumberFormatInfo { NumberDecimalSeparator = "." };
+            IFormatProvider formatter = new NumberFormatInfo {NumberDecimalSeparator = "."};
             float chaosValue;
-            
+
             if (!Settings.Update.Value)
                 return;
 
@@ -726,15 +715,15 @@ namespace InventoryItemsAnalyzer
                 case "Temp SC":
                     uniquesUrls = new List<string>
                     {
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
                         @"&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
                         @"&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
                         @"&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
                         @"&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
                         @"&type=UniqueAccessory&language=en"
                     };
                     break;
@@ -742,15 +731,15 @@ namespace InventoryItemsAnalyzer
                 case "Temp HC":
                     uniquesUrls = new List<string>
                     {
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
                         @"&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
                         @"&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
                         @"&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
                         @"&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
                         @"&type=UniqueAccessory&language=en"
                     };
                     break;
@@ -774,13 +763,13 @@ namespace InventoryItemsAnalyzer
                             continue;
 
                         chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
-                        
+
                         if (chaosValue < Settings.ChaosUnique.Value)
                             result.Add((string) line?["name"]);
                     }
                 }
 
-            ShitUniques = result.ToHashSet();
+            _shitUniques = result.ToHashSet();
 
             #endregion
 
@@ -791,12 +780,12 @@ namespace InventoryItemsAnalyzer
             switch (Settings.League.Value)
             {
                 case "Temp SC":
-                    url2 = @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                    url2 = @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
                            @"&type=Prophecy&language=en";
                     break;
 
                 case "Temp HC":
-                    url2 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                    url2 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
                            @"&type=Prophecy&language=en";
                     break;
 
@@ -814,13 +803,13 @@ namespace InventoryItemsAnalyzer
                 foreach (var line in o?["lines"])
                 {
                     chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
-                    
+
                     if (chaosValue >= Settings.ChaosProphecy.Value)
                         result.Add((string) line?["name"]);
                 }
             }
 
-            GoodProphecies = result.ToHashSet();
+            _goodProphecies = result.ToHashSet();
 
             #endregion
 
@@ -831,12 +820,12 @@ namespace InventoryItemsAnalyzer
             switch (Settings.League.Value)
             {
                 case "Temp SC":
-                    url3 = @"https://poe.ninja/api/data/itemoverview?league=" + _leagueName +
+                    url3 = @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
                            @"&type=DivinationCard&language=en";
                     break;
 
                 case "Temp HC":
-                    url3 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + _leagueName +
+                    url3 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
                            @"&type=DivinationCard&language=en";
                     break;
 
@@ -854,13 +843,13 @@ namespace InventoryItemsAnalyzer
                 foreach (var line in o?["lines"])
                 {
                     chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
-                    
+
                     if (chaosValue < Settings.ChaosProphecy.Value)
                         result.Add((string) line?["name"]);
                 }
             }
 
-            ShitDivCards = result.ToHashSet();
+            _shitDivCards = result.ToHashSet();
 
             #endregion
 

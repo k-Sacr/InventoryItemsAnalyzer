@@ -22,7 +22,8 @@ namespace InventoryItemsAnalyzer
             Tier = -1;
             var subOptimalTierDistance = 0;
 
-            if (modRecordCache.ModRecordsByTier.TryGetValue(Tuple.Create(Record.Group, Record.AffixType), out var allTiers))
+            if (modRecordCache.ModRecordsByTier.TryGetValue(Tuple.Create(Record.Group, Record.AffixType),
+                out var allTiers))
             {
                 var tierFound = false;
                 TotalTiers = 0;

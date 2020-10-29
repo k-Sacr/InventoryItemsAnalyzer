@@ -165,7 +165,7 @@ namespace InventoryItemsAnalyzer
             }
             catch (Exception e)
             {
-                DebugWindow.LogError(e?.StackTrace);
+                DebugWindow.LogMsg(e?.StackTrace, 1, Color.GreenYellow);
             }
         }
 

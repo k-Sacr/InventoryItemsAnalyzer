@@ -143,395 +143,403 @@ namespace InventoryItemsAnalyzer
 
             foreach (var normalInventoryItem in normalInventoryItems)
             {
-                #region Start
-
-                var highItemLevel = false;
-                var item = normalInventoryItem.Item;
-                if (item == null)
-                    continue;
-
-                if (string.IsNullOrEmpty(item.Path))
-                    continue;
-
-                var modsComponent = item.GetComponent<Mods>();
-
-                var drawRect = normalInventoryItem.GetClientRect();
-                //fix star position
-                drawRect.X -= 5;
-                drawRect.Y -= 5;
-
-                var bit = GameController.Files.BaseItemTypes.Translate(item.Path);
-
-                #endregion
-
-                #region Vendor for alts
-
-                if (Settings.VendorRareJewels &&
-                    modsComponent?.ItemRarity == ItemRarity.Rare &&
-                    modsComponent?.Identified == true &&
-                    item.Path.Contains("Jewel"))
-                    _allItemsPos.Add(drawRect);
-
-                if (Settings.VendorTalismans &&
-                    modsComponent?.ItemRarity == ItemRarity.Rare &&
-                    modsComponent?.Identified == true &&
-                    item.Path.Contains("Talisman"))
-                    _allItemsPos.Add(drawRect);
-
-                if (Settings.VendorBreachRings &&
-                    modsComponent?.ItemRarity == ItemRarity.Rare &&
-                    modsComponent?.Identified == true &&
-                    item.Path.Contains("BreachRing"))
-                    _allItemsPos.Add(drawRect);
-
-                #endregion
-
-                #region Prophecy
-
-                if (item.HasComponent<Prophecy>())
+                try
                 {
-                    var prop = item.GetComponent<Prophecy>();
+                    #region Start
 
-                    if (_goodProphecies.Contains(prop?.DatProphecy?.Name)) _goodItemsPos.Add(drawRect);
-                }
-
-                #endregion
-
-                #region Div Card
-
-                if (bit.ClassName.Equals("DivinationCard"))
-                    if (_shitDivCards.Contains(bit.BaseName))
-                    {
-                        if (Settings.VendorShitDivCards) _allItemsPos.Add(drawRect);
-                    }
-                    else
-                    {
-                        _goodItemsPos.Add(drawRect);
-                    }
-
-                #endregion
-
-                #region Filter trash uniques
-
-                if (modsComponent?.ItemRarity == ItemRarity.Unique &&
-                    _shitUniques.Contains(modsComponent.UniqueName) &&
-                    !item.HasComponent<Map>() &&
-                    item.GetComponent<Sockets>()?.LargestLinkSize != 6
-                )
-                {
-                    if (bit.ClassName.Contains("MetamorphosisDNA"))
+                    var highItemLevel = false;
+                    var item = normalInventoryItem.Item;
+                    if (item == null)
                         continue;
 
-                    LogMessage(modsComponent.UniqueName);
-                    _allItemsPos.Add(drawRect);
-                    continue;
-                }
+                    if (string.IsNullOrEmpty(item.Path))
+                        continue;
 
-                #endregion
+                    var modsComponent = item.GetComponent<Mods>();
 
-                #region 6socket N/M for sale
+                    var drawRect = normalInventoryItem.GetClientRect();
+                    //fix star position
+                    drawRect.X -= 5;
+                    drawRect.Y -= 5;
 
-                if (modsComponent?.ItemRarity == ItemRarity.Normal || modsComponent?.ItemRarity == ItemRarity.Magic)
-                {
-                    if (item.GetComponent<Sockets>()?.NumberOfSockets == 6)
+                    var bit = GameController.Files.BaseItemTypes.Translate(item.Path);
+
+                    #endregion
+
+                    #region Vendor for alts
+
+                    if (Settings.VendorRareJewels &&
+                        modsComponent?.ItemRarity == ItemRarity.Rare &&
+                        modsComponent?.Identified == true &&
+                        item.Path.Contains("Jewel"))
                         _allItemsPos.Add(drawRect);
 
-                    continue;
-                }
+                    if (Settings.VendorTalismans &&
+                        modsComponent?.ItemRarity == ItemRarity.Rare &&
+                        modsComponent?.Identified == true &&
+                        item.Path.Contains("Talisman"))
+                        _allItemsPos.Add(drawRect);
 
-                #endregion
+                    if (Settings.VendorBreachRings &&
+                        modsComponent?.ItemRarity == ItemRarity.Rare &&
+                        modsComponent?.Identified == true &&
+                        item.Path.Contains("BreachRing"))
+                        _allItemsPos.Add(drawRect);
 
-                if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false)
-                    continue;
+                    #endregion
 
-                _totalWeight = 0;
+                    #region Prophecy
 
-                var itemMods = modsComponent.ItemMods;
-
-                _mods.Clear();
-
-                _mods = itemMods
-                    .Where(m =>
-                        m?.RawName?.Length > 1)
-                    .Select(it =>
-                        new ModValue(it, GameController.Files, modsComponent.ItemLevel, bit)).ToList();
-
-                _item = item;
-
-                #region Influence
-
-                {
-                    var baseComponent = item.GetComponent<Base>();
-                    if (modsComponent.ItemLevel >= Settings.ItemLevelInfluence &&
-                        (baseComponent.isElder || baseComponent.isShaper || baseComponent.isCrusader ||
-                         baseComponent.isHunter || baseComponent.isRedeemer || baseComponent.isWarlord))
+                    if (item.HasComponent<Prophecy>())
                     {
-                        highItemLevel = true;
-                        // dont vendor influenced
+                        var prop = item.GetComponent<Prophecy>();
+
+                        if (_goodProphecies.Contains(prop?.DatProphecy?.Name)) _goodItemsPos.Add(drawRect);
+                    }
+
+                    #endregion
+
+                    #region Div Card
+
+                    if (bit.ClassName.Equals("DivinationCard"))
+                        if (_shitDivCards.Contains(bit.BaseName))
+                        {
+                            if (Settings.VendorShitDivCards) _allItemsPos.Add(drawRect);
+                        }
+                        else
+                        {
+                            _goodItemsPos.Add(drawRect);
+                        }
+
+                    #endregion
+
+                    #region Filter trash uniques
+
+                    if (modsComponent?.ItemRarity == ItemRarity.Unique &&
+                        _shitUniques.Contains(modsComponent.UniqueName) &&
+                        !item.HasComponent<Map>() &&
+                        item.GetComponent<Sockets>()?.LargestLinkSize != 6
+                    )
+                    {
+                        if (bit.ClassName.Contains("MetamorphosisDNA"))
+                            continue;
+
+                        LogMessage(modsComponent.UniqueName);
+                        _allItemsPos.Add(drawRect);
                         continue;
                     }
-                }
 
-                #endregion
+                    #endregion
 
-                #region Item Level
+                    #region 6socket N/M for sale
 
-                if (modsComponent.ItemLevel >= Settings.ItemLevelNoInfluence && _goodBaseTypes.Contains(bit.BaseName))
-                    highItemLevel = true;
+                    if (modsComponent?.ItemRarity == ItemRarity.Normal || modsComponent?.ItemRarity == ItemRarity.Magic)
+                    {
+                        if (item.GetComponent<Sockets>()?.NumberOfSockets == 6)
+                            _allItemsPos.Add(drawRect);
 
-                #endregion
-
-                //---------------------------------------------------------------------------------------------------------------------------
-                if (highItemLevel)
-                    _highItemsPos.Add(drawRect);
-
-                if (!Settings.TreatVeiledAsRegularItem &&
-                    IsVeiled())
-                {
-                    _veilItemsPos.Add(drawRect);
-                    continue;
-                }
-
-                switch (bit?.ClassName)
-                {
-                    case "Body Armour":
-
-                        CheckLife(Settings.Ba_Life);
-                        CheckDefense(Settings.Ba_EnergyShield);
-                        CheckResist(Settings.Ba_TotalRes);
-                        CheckIntelligence(Settings.Ba_Intelligence);
-                        CheckDexterity(Settings.Ba_Dexterity);
-                        CheckStrength(Settings.Ba_Strength);
-                        CheckComboLife(Settings.Ba_LifeCombo);
-
-                        CheckGood(Settings.Ba_Affixes, drawRect);
-                        break;
-
-                    case "Quiver":
-
-                        CheckLife(Settings.Q_Life);
-                        CheckResist(Settings.Q_TotalRes);
-                        CheckAccuracy(Settings.Q_Accuracy);
-                        CheckFlatPhys(Settings.Q_PhysDamage);
-                        CheckWED(Settings.Q_WeaponElemDamage);
-                        CheckCritMultiGlobal(Settings.Q_CritMult);
-                        CheckGlobalCritChance(Settings.Q_CritChance);
-
-                        CheckGood(Settings.Q_Affixes, drawRect);
-                        break;
-
-                    case "Helmet":
-
-                        CheckLife(Settings.H_Life);
-                        CheckDefense(Settings.H_EnergyShield);
-                        CheckResist(Settings.H_TotalRes);
-                        CheckIntelligence(Settings.H_Dexterity);
-                        CheckDexterity(Settings.H_Dexterity);
-                        CheckStrength(Settings.H_Intelligence);
-                        CheckComboLife(Settings.H_LifeCombo);
-                        CheckAccuracy(Settings.H_Accuracy);
-                        CheckMana(Settings.H_Mana);
-
-                        CheckGood(Settings.H_Affixes, drawRect);
-                        break;
-
-                    case "Boots":
-
-                        CheckLife(Settings.B_Life);
-                        CheckDefense(Settings.B_EnergyShield);
-                        CheckMoveSpeed(Settings.B_MoveSpeed);
-                        CheckResist(Settings.B_TotalRes);
-                        CheckIntelligence(Settings.B_Intelligence);
-                        CheckDexterity(Settings.B_Dexterity);
-                        CheckStrength(Settings.B_Strength);
-                        CheckComboLife(Settings.B_LifeCombo);
-                        CheckMana(Settings.B_Mana);
-
-                        CheckGood(Settings.B_Affixes, drawRect);
-                        break;
-
-                    case "Gloves":
-
-                        CheckLife(Settings.G_Life);
-                        CheckDefense(Settings.G_EnergyShield);
-                        CheckResist(Settings.G_TotalRes);
-                        CheckAccuracy(Settings.G_Accuracy);
-                        CheckAttackSpeed(Settings.G_AttackSpeed);
-                        CheckFlatPhys(Settings.G_PhysDamage);
-                        CheckStrength(Settings.G_Strength);
-                        CheckIntelligence(Settings.G_Intelligence);
-                        CheckDexterity(Settings.G_Dexterity);
-                        CheckMana(Settings.G_Mana);
-                        CheckComboLife(Settings.G_LifeCombo);
-
-                        CheckGood(Settings.G_Affixes, drawRect);
-                        break;
-
-                    case "Shield":
-
-                        CheckLife(Settings.S_Life);
-                        CheckDefense(Settings.S_EnergyShield);
-                        CheckResist(Settings.S_TotalRes);
-                        CheckStrength(Settings.S_Strength);
-                        CheckDexterity(Settings.S_Dexterity);
-                        CheckIntelligence(Settings.S_Intelligence);
-                        CheckSpellElemDamage(Settings.S_SpellDamage);
-                        CheckSpellCrit(Settings.S_SpellCritChance);
-                        CheckComboLife(Settings.S_LifeCombo);
-
-                        CheckGood(Settings.S_Affixes, drawRect);
-                        break;
-
-                    case "Belt":
-
-                        CheckLife(Settings.Be_Life);
-                        CheckEnergyShieldJewel(Settings.Be_EnergyShield);
-                        CheckResist(Settings.Be_TotalRes);
-                        CheckStrength(Settings.Be_Strength);
-                        CheckWED(Settings.Be_WeaponElemDamage);
-                        CheckFlaskReduced(Settings.Be_FlaskReduced);
-                        CheckFlaskDuration(Settings.Be_FlaskDuration);
-
-                        CheckGood(Settings.Be_Affixes, drawRect);
-                        break;
-
-                    case "Ring":
-
-                        CheckLife(Settings.R_Life);
-                        CheckResist(Settings.R_TotalRes);
-                        CheckEnergyShieldJewel(Settings.R_EnergyShield);
-                        CheckAttackSpeed(Settings.R_AttackSpeed);
-                        CheckCastSpeed(Settings.R_CastSpped);
-                        CheckAccuracy(Settings.R_Accuracy);
-                        CheckFlatPhys(Settings.R_PhysDamage);
-                        CheckWED(Settings.R_WeaponElemDamage);
-                        CheckStrength(Settings.R_Strength);
-                        CheckIntelligence(Settings.R_Intelligence);
-                        CheckDexterity(Settings.R_Dexterity);
-                        CheckMana(Settings.R_Mana);
-
-                        CheckGood(Settings.R_Affixes, drawRect);
-                        break;
-
-                    case "Amulet":
-
-                        CheckLife(Settings.A_Life);
-                        CheckEnergyShieldJewel(Settings.A_EnergyShield);
-                        CheckResist(Settings.A_TotalRes);
-                        CheckAccuracy(Settings.A_Accuracy);
-                        CheckFlatPhys(Settings.A_PhysDamage);
-                        CheckWED(Settings.A_WeaponElemDamage);
-                        CheckGlobalCritChance(Settings.A_CritChance);
-                        CheckCritMultiGlobal(Settings.A_CritMult);
-                        CheckSpellElemDamage(Settings.A_TotalElemSpellDmg);
-                        CheckStrength(Settings.A_Strength);
-                        CheckIntelligence(Settings.A_Intelligence);
-                        CheckDexterity(Settings.A_Dexterity);
-                        CheckMana(Settings.A_Mana);
-
-                        CheckGood(Settings.A_Affixes, drawRect);
-                        break;
-
-                    case "Dagger":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "Rune Dagger":
-                        CheckCastWeapon();
-
-                        CheckGood(Settings.Wc_Affixes, drawRect);
-                        break;
-
-                    case "Wand":
-                        CheckCastWeapon();
-
-                        CheckGood(Settings.Wc_Affixes, drawRect);
-                        break;
-
-                    case "Sceptre":
-                        CheckCastWeapon();
-
-                        CheckGood(Settings.Wc_Affixes, drawRect);
-                        break;
-
-                    case "Thrusting One Hand Sword":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "Staff":
-                        CheckCastWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "Warstaff":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "Claw":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "One Hand Sword":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "Two Hand Sword":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "One Hand Axe":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "Two Hand Axe":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "One Hand Mace":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "Two Hand Mace":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    case "Bow":
-                        CheckAttackWeapon();
-
-                        CheckGood(Settings.Wa_Affixes, drawRect);
-                        break;
-
-                    default:
                         continue;
+                    }
+
+                    #endregion
+
+                    if (modsComponent?.ItemRarity != ItemRarity.Rare || modsComponent.Identified == false)
+                        continue;
+
+                    _totalWeight = 0;
+
+                    var itemMods = modsComponent.ItemMods;
+
+                    _mods.Clear();
+
+                    _mods = itemMods
+                        .Where(m =>
+                            m?.RawName?.Length > 1)
+                        .Select(it =>
+                            new ModValue(it, GameController.Files, modsComponent.ItemLevel, bit)).ToList();
+
+                    _item = item;
+
+                    #region Influence
+
+                    {
+                        var baseComponent = item.GetComponent<Base>();
+                        if (modsComponent.ItemLevel >= Settings.ItemLevelInfluence &&
+                            (baseComponent.isElder || baseComponent.isShaper || baseComponent.isCrusader ||
+                             baseComponent.isHunter || baseComponent.isRedeemer || baseComponent.isWarlord))
+                        {
+                            highItemLevel = true;
+                            // dont vendor influenced
+                            continue;
+                        }
+                    }
+
+                    #endregion
+
+                    #region Item Level
+
+                    if (modsComponent.ItemLevel >= Settings.ItemLevelNoInfluence &&
+                        _goodBaseTypes.Contains(bit.BaseName))
+                        highItemLevel = true;
+
+                    #endregion
+
+                    //---------------------------------------------------------------------------------------------------------------------------
+                    if (highItemLevel)
+                        _highItemsPos.Add(drawRect);
+
+                    if (!Settings.TreatVeiledAsRegularItem &&
+                        IsVeiled())
+                    {
+                        _veilItemsPos.Add(drawRect);
+                        continue;
+                    }
+
+                    switch (bit?.ClassName)
+                    {
+                        case "Body Armour":
+
+                            CheckLife(Settings.Ba_Life);
+                            CheckDefense(Settings.Ba_EnergyShield);
+                            CheckResist(Settings.Ba_TotalRes);
+                            CheckIntelligence(Settings.Ba_Intelligence);
+                            CheckDexterity(Settings.Ba_Dexterity);
+                            CheckStrength(Settings.Ba_Strength);
+                            CheckComboLife(Settings.Ba_LifeCombo);
+
+                            CheckGood(Settings.Ba_Affixes, drawRect);
+                            break;
+
+                        case "Quiver":
+
+                            CheckLife(Settings.Q_Life);
+                            CheckResist(Settings.Q_TotalRes);
+                            CheckAccuracy(Settings.Q_Accuracy);
+                            CheckFlatPhys(Settings.Q_PhysDamage);
+                            CheckWED(Settings.Q_WeaponElemDamage);
+                            CheckCritMultiGlobal(Settings.Q_CritMult);
+                            CheckGlobalCritChance(Settings.Q_CritChance);
+
+                            CheckGood(Settings.Q_Affixes, drawRect);
+                            break;
+
+                        case "Helmet":
+
+                            CheckLife(Settings.H_Life);
+                            CheckDefense(Settings.H_EnergyShield);
+                            CheckResist(Settings.H_TotalRes);
+                            CheckIntelligence(Settings.H_Dexterity);
+                            CheckDexterity(Settings.H_Dexterity);
+                            CheckStrength(Settings.H_Intelligence);
+                            CheckComboLife(Settings.H_LifeCombo);
+                            CheckAccuracy(Settings.H_Accuracy);
+                            CheckMana(Settings.H_Mana);
+
+                            CheckGood(Settings.H_Affixes, drawRect);
+                            break;
+
+                        case "Boots":
+
+                            CheckLife(Settings.B_Life);
+                            CheckDefense(Settings.B_EnergyShield);
+                            CheckMoveSpeed(Settings.B_MoveSpeed);
+                            CheckResist(Settings.B_TotalRes);
+                            CheckIntelligence(Settings.B_Intelligence);
+                            CheckDexterity(Settings.B_Dexterity);
+                            CheckStrength(Settings.B_Strength);
+                            CheckComboLife(Settings.B_LifeCombo);
+                            CheckMana(Settings.B_Mana);
+
+                            CheckGood(Settings.B_Affixes, drawRect);
+                            break;
+
+                        case "Gloves":
+
+                            CheckLife(Settings.G_Life);
+                            CheckDefense(Settings.G_EnergyShield);
+                            CheckResist(Settings.G_TotalRes);
+                            CheckAccuracy(Settings.G_Accuracy);
+                            CheckAttackSpeed(Settings.G_AttackSpeed);
+                            CheckFlatPhys(Settings.G_PhysDamage);
+                            CheckStrength(Settings.G_Strength);
+                            CheckIntelligence(Settings.G_Intelligence);
+                            CheckDexterity(Settings.G_Dexterity);
+                            CheckMana(Settings.G_Mana);
+                            CheckComboLife(Settings.G_LifeCombo);
+
+                            CheckGood(Settings.G_Affixes, drawRect);
+                            break;
+
+                        case "Shield":
+
+                            CheckLife(Settings.S_Life);
+                            CheckDefense(Settings.S_EnergyShield);
+                            CheckResist(Settings.S_TotalRes);
+                            CheckStrength(Settings.S_Strength);
+                            CheckDexterity(Settings.S_Dexterity);
+                            CheckIntelligence(Settings.S_Intelligence);
+                            CheckSpellElemDamage(Settings.S_SpellDamage);
+                            CheckSpellCrit(Settings.S_SpellCritChance);
+                            CheckComboLife(Settings.S_LifeCombo);
+
+                            CheckGood(Settings.S_Affixes, drawRect);
+                            break;
+
+                        case "Belt":
+
+                            CheckLife(Settings.Be_Life);
+                            CheckEnergyShieldJewel(Settings.Be_EnergyShield);
+                            CheckResist(Settings.Be_TotalRes);
+                            CheckStrength(Settings.Be_Strength);
+                            CheckWED(Settings.Be_WeaponElemDamage);
+                            CheckFlaskReduced(Settings.Be_FlaskReduced);
+                            CheckFlaskDuration(Settings.Be_FlaskDuration);
+
+                            CheckGood(Settings.Be_Affixes, drawRect);
+                            break;
+
+                        case "Ring":
+
+                            CheckLife(Settings.R_Life);
+                            CheckResist(Settings.R_TotalRes);
+                            CheckEnergyShieldJewel(Settings.R_EnergyShield);
+                            CheckAttackSpeed(Settings.R_AttackSpeed);
+                            CheckCastSpeed(Settings.R_CastSpped);
+                            CheckAccuracy(Settings.R_Accuracy);
+                            CheckFlatPhys(Settings.R_PhysDamage);
+                            CheckWED(Settings.R_WeaponElemDamage);
+                            CheckStrength(Settings.R_Strength);
+                            CheckIntelligence(Settings.R_Intelligence);
+                            CheckDexterity(Settings.R_Dexterity);
+                            CheckMana(Settings.R_Mana);
+
+                            CheckGood(Settings.R_Affixes, drawRect);
+                            break;
+
+                        case "Amulet":
+
+                            CheckLife(Settings.A_Life);
+                            CheckEnergyShieldJewel(Settings.A_EnergyShield);
+                            CheckResist(Settings.A_TotalRes);
+                            CheckAccuracy(Settings.A_Accuracy);
+                            CheckFlatPhys(Settings.A_PhysDamage);
+                            CheckWED(Settings.A_WeaponElemDamage);
+                            CheckGlobalCritChance(Settings.A_CritChance);
+                            CheckCritMultiGlobal(Settings.A_CritMult);
+                            CheckSpellElemDamage(Settings.A_TotalElemSpellDmg);
+                            CheckStrength(Settings.A_Strength);
+                            CheckIntelligence(Settings.A_Intelligence);
+                            CheckDexterity(Settings.A_Dexterity);
+                            CheckMana(Settings.A_Mana);
+
+                            CheckGood(Settings.A_Affixes, drawRect);
+                            break;
+
+                        case "Dagger":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "Rune Dagger":
+                            CheckCastWeapon();
+
+                            CheckGood(Settings.Wc_Affixes, drawRect);
+                            break;
+
+                        case "Wand":
+                            CheckCastWeapon();
+
+                            CheckGood(Settings.Wc_Affixes, drawRect);
+                            break;
+
+                        case "Sceptre":
+                            CheckCastWeapon();
+
+                            CheckGood(Settings.Wc_Affixes, drawRect);
+                            break;
+
+                        case "Thrusting One Hand Sword":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "Staff":
+                            CheckCastWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "Warstaff":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "Claw":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "One Hand Sword":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "Two Hand Sword":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "One Hand Axe":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "Two Hand Axe":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "One Hand Mace":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "Two Hand Mace":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        case "Bow":
+                            CheckAttackWeapon();
+
+                            CheckGood(Settings.Wa_Affixes, drawRect);
+                            break;
+
+                        default:
+                            continue;
+                    }
+
+                    if (Settings.DebugMode)
+                    {
+                        foreach (var mod in _mods) LogMessage(mod.Record.Group + " : " + mod.StatValue[0], 10f);
+
+                        LogMessage(_totalWeight.ToString(), 10f);
+                        LogMessage("--------------------", 10f);
+                    }
                 }
-
-                if (Settings.DebugMode)
+                catch (Exception e)
                 {
-                    foreach (var mod in _mods) LogMessage(mod.Record.Group + " : " + mod.StatValue[0], 10f);
-
-                    LogMessage(_totalWeight.ToString(), 10f);
-                    LogMessage("--------------------", 10f);
+                    DebugWindow.LogMsg(e?.StackTrace, 1, Color.GreenYellow);
                 }
             }
         }

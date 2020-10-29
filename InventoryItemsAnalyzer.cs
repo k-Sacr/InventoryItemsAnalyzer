@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -19,7 +20,10 @@ namespace InventoryItemsAnalyzer
 {
     public class InventoryItemsAnalyzer : BaseSettingsPlugin<InventoryItemsAnalyzerSettings>
     {
+        private bool _poeNinjaInitialized;
+        private int _ninjaDelayMs = 1000;
         private const string COROUTINE_NAME = "InventoryItemsAnalyzer";
+        private readonly Stopwatch _lastTickTimer;
         private readonly List<RectangleF> _allItemsPos;
         private readonly List<RectangleF> _goodItemsPos;
         private readonly List<RectangleF> _highItemsPos;
@@ -38,7 +42,6 @@ namespace InventoryItemsAnalyzer
         private Vector2 _windowOffset;
         private Coroutine _coroutineWorker;
         private HashSet<string> _goodBaseTypes;
-        private HashSet<string> _goodProphecies;
         private HashSet<string> _shitDivCards;
         private HashSet<string> _shitUniques;
 
@@ -50,6 +53,8 @@ namespace InventoryItemsAnalyzer
             _allItemsPos = new List<RectangleF>();
             _highItemsPos = new List<RectangleF>();
             _veilItemsPos = new List<RectangleF>();
+            _lastTickTimer = new Stopwatch();
+            _lastTickTimer.Start();
         }
 
         public override bool Initialise()
@@ -59,7 +64,6 @@ namespace InventoryItemsAnalyzer
             try
             {
                 ParseConfig_BaseType();
-                ParsePoeNinja();
             }
             catch (Exception)
             {
@@ -85,6 +89,17 @@ namespace InventoryItemsAnalyzer
             Settings.League.OnValueSelectedPre += s => { ParsePoeNinja(); };
 
             return true;
+        }
+
+        public override Job Tick()
+        {
+            if (!_poeNinjaInitialized &&
+                _lastTickTimer.ElapsedMilliseconds > _ninjaDelayMs)
+            {
+                ParsePoeNinja();
+                _lastTickTimer.Restart();
+            }
+            return base.Tick();
         }
 
         public override void Render()
@@ -185,17 +200,6 @@ namespace InventoryItemsAnalyzer
                         modsComponent?.Identified == true &&
                         item.Path.Contains("BreachRing"))
                         _allItemsPos.Add(drawRect);
-
-                    #endregion
-
-                    #region Prophecy
-
-                    if (item.HasComponent<Prophecy>())
-                    {
-                        var prop = item.GetComponent<Prophecy>();
-
-                        if (_goodProphecies.Contains(prop?.DatProphecy?.Name)) _goodItemsPos.Add(drawRect);
-                    }
 
                     #endregion
 
@@ -698,180 +702,162 @@ namespace InventoryItemsAnalyzer
 
         private void ParsePoeNinja()
         {
-            _shitUniques = new HashSet<string>();
-            _goodProphecies = new HashSet<string>();
-            _shitDivCards = new HashSet<string>();
-
-            IFormatProvider formatter = new NumberFormatInfo {NumberDecimalSeparator = "."};
-            float chaosValue;
-
-            if (!Settings.Update.Value)
-                return;
-
-            #region Unique
-
-            List<string> uniquesUrls;
-
-            switch (Settings.League.Value)
+            try
             {
-                case "Temp SC":
-                    uniquesUrls = new List<string>
+                _shitUniques = new HashSet<string>();
+                _shitDivCards = new HashSet<string>();
+
+                IFormatProvider formatter = new NumberFormatInfo {NumberDecimalSeparator = "."};
+                float chaosValue;
+
+                if (!Settings.Update.Value)
+                    return;
+
+                #region Unique
+
+                List<string> uniquesUrls;
+
+                switch (Settings.League.Value)
+                {
+                    case "Temp SC":
+                        uniquesUrls = new List<string>
+                        {
+                            @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
+                            @"&type=UniqueJewel&language=en",
+                            @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
+                            @"&type=UniqueFlask&language=en",
+                            @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
+                            @"&type=UniqueWeapon&language=en",
+                            @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
+                            @"&type=UniqueArmour&language=en",
+                            @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
+                            @"&type=UniqueAccessory&language=en"
+                        };
+                        break;
+
+                    case "Temp HC":
+                        uniquesUrls = new List<string>
+                        {
+                            @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
+                            @"&type=UniqueJewel&language=en",
+                            @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
+                            @"&type=UniqueFlask&language=en",
+                            @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
+                            @"&type=UniqueWeapon&language=en",
+                            @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
+                            @"&type=UniqueArmour&language=en",
+                            @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
+                            @"&type=UniqueAccessory&language=en"
+                        };
+                        break;
+
+                    default:
+                        uniquesUrls = new List<string>();
+                        break;
+                }
+
+                var result = new List<string>();
+
+                foreach (var url in uniquesUrls)
+                    using (var wc = new WebClient())
                     {
-                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
-                        @"&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
-                        @"&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
-                        @"&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
-                        @"&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
-                        @"&type=UniqueAccessory&language=en"
-                    };
-                    break;
+                        var json = wc.DownloadString(url);
+                        var o = JObject.Parse(json);
+                        foreach (var line in o?["lines"])
+                        {
+                            if (int.TryParse((string) line?["links"], out var links) &&
+                                links == 6)
+                                continue;
 
-                case "Temp HC":
-                    uniquesUrls = new List<string>
-                    {
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
-                        @"&type=UniqueJewel&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
-                        @"&type=UniqueFlask&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
-                        @"&type=UniqueWeapon&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
-                        @"&type=UniqueArmour&language=en",
-                        @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
-                        @"&type=UniqueAccessory&language=en"
-                    };
-                    break;
+                            chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
 
-                default:
-                    uniquesUrls = new List<string>();
-                    break;
-            }
+                            if (chaosValue < Settings.ChaosUnique.Value)
+                                result.Add((string) line?["name"]);
+                        }
+                    }
 
-            var result = new List<string>();
+                _shitUniques = result.ToHashSet();
 
-            foreach (var url in uniquesUrls)
+                #endregion
+
+                #region DivCard
+
+                string url3;
+
+                switch (Settings.League.Value)
+                {
+                    case "Temp SC":
+                        url3 = @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
+                               @"&type=DivinationCard&language=en";
+                        break;
+
+                    case "Temp HC":
+                        url3 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
+                               @"&type=DivinationCard&language=en";
+                        break;
+
+                    default:
+                        url3 = "";
+                        break;
+                }
+
+                result.Clear();
+
                 using (var wc = new WebClient())
                 {
-                    var json = wc.DownloadString(url);
+                    var json = wc.DownloadString(url3);
                     var o = JObject.Parse(json);
                     foreach (var line in o?["lines"])
                     {
-                        if (int.TryParse((string) line?["links"], out var links) &&
-                            links == 6)
-                            continue;
-
                         chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
 
-                        if (chaosValue < Settings.ChaosUnique.Value)
+                        if (chaosValue < Settings.ChaosProphecy.Value)
                             result.Add((string) line?["name"]);
                     }
                 }
 
-            _shitUniques = result.ToHashSet();
+                _shitDivCards = result.ToHashSet();
 
-            #endregion
+                #endregion
 
-            #region Prophecy
+                #region Test
 
-            string url2;
+                // string text = "";
+                //
+                // foreach (var v in ShitUniques)
+                // {
+                //     text += v + Environment.NewLine;
+                // }
+                //
+                // string path = $"{DirectoryFullName}\\Test.txt";
+                // using (StreamWriter streamWriter = new StreamWriter(path, false))
+                // {
+                //     streamWriter.Write(text);
+                //     streamWriter.Close();
+                // }
 
-            switch (Settings.League.Value)
-            {
-                case "Temp SC":
-                    url2 = @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
-                           @"&type=Prophecy&language=en";
-                    break;
-
-                case "Temp HC":
-                    url2 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
-                           @"&type=Prophecy&language=en";
-                    break;
-
-                default:
-                    url2 = "";
-                    break;
+                #endregion
             }
-
-            result.Clear();
-
-            using (var wc = new WebClient())
+            catch (Exception e)
             {
-                var json = wc.DownloadString(url2);
-                var o = JObject.Parse(json);
-                foreach (var line in o?["lines"])
+                DebugWindow.LogMsg(e?.StackTrace, 1, Color.GreenYellow);
+                _ninjaDelayMs *= 2;
+                _poeNinjaInitialized = false;
+            }
+            finally
+            {
+                var n = _shitUniques.Count + _shitDivCards.Count;
+                DebugWindow.LogMsg($"{n} shit items total loaded from ninja", 30, Color.GreenYellow);
+                if (n > 200)
                 {
-                    chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
-
-                    if (chaosValue >= Settings.ChaosProphecy.Value)
-                        result.Add((string) line?["name"]);
+                    _poeNinjaInitialized = true;
+                }
+                else
+                {
+                    _ninjaDelayMs *= 2;
+                    _poeNinjaInitialized = false;
                 }
             }
-
-            _goodProphecies = result.ToHashSet();
-
-            #endregion
-
-            #region DivCard
-
-            string url3;
-
-            switch (Settings.League.Value)
-            {
-                case "Temp SC":
-                    url3 = @"https://poe.ninja/api/data/itemoverview?league=" + LEAGUE_NAME +
-                           @"&type=DivinationCard&language=en";
-                    break;
-
-                case "Temp HC":
-                    url3 = @"https://poe.ninja/api/data/itemoverview?league=Hardcore+" + LEAGUE_NAME +
-                           @"&type=DivinationCard&language=en";
-                    break;
-
-                default:
-                    url3 = "";
-                    break;
-            }
-
-            result.Clear();
-
-            using (var wc = new WebClient())
-            {
-                var json = wc.DownloadString(url3);
-                var o = JObject.Parse(json);
-                foreach (var line in o?["lines"])
-                {
-                    chaosValue = Convert.ToSingle((string) line?["chaosValue"], formatter);
-
-                    if (chaosValue < Settings.ChaosProphecy.Value)
-                        result.Add((string) line?["name"]);
-                }
-            }
-
-            _shitDivCards = result.ToHashSet();
-
-            #endregion
-
-            #region Test
-
-            // string text = "";
-            //
-            // foreach (var v in ShitUniques)
-            // {
-            //     text += v + Environment.NewLine;
-            // }
-            //
-            // string path = $"{DirectoryFullName}\\Test.txt";
-            // using (StreamWriter streamWriter = new StreamWriter(path, false))
-            // {
-            //     streamWriter.Write(text);
-            //     streamWriter.Close();
-            // }
-
-            #endregion
         }
 
         #endregion

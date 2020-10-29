@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using AdvancedTooltip;
 using ExileCore;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements.InventoryElements;
@@ -48,6 +47,7 @@ namespace InventoryItemsAnalyzer
         private HashSet<string> ShitDivCards;
         private HashSet<string> GoodProphecies;
         private HashSet<string> ShitUniques;
+        private ModRecordCache _modRecordCache;
 
         public InventoryItemsAnalyzer()
         {
@@ -66,11 +66,12 @@ namespace InventoryItemsAnalyzer
             try
             {
                 ParseConfig_BaseType();
-
                 ParsePoeNinja();
+                _modRecordCache = new ModRecordCache(GameController);
             }
             catch (Exception)
             {
+                // ignored
             }
 
             Name = "INV Item Analyzer";
@@ -93,7 +94,17 @@ namespace InventoryItemsAnalyzer
 
             return true;
         }
-
+        
+        public override Job Tick()
+        {
+            if (!_modRecordCache.InitializedModRecords ||
+                !_modRecordCache.InitializedModRecordsByTier)
+            {
+                _modRecordCache.Initialize();
+            }
+            return base.Tick();
+        }
+        
         public override void Render()
         {
             if (!_ingameState.IngameUi.InventoryPanel.IsVisible)
@@ -261,7 +272,7 @@ namespace InventoryItemsAnalyzer
                 _mods.Clear();
 
                 _mods = itemMods
-                    .Select(it => new ModValue(it, GameController.Files, modsComponent.ItemLevel, bit)).ToList();
+                    .Select(it => new ModValue(it, _modRecordCache, modsComponent.ItemLevel, bit)).ToList();
 
                 _item = item;
 

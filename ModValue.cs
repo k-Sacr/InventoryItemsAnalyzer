@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.FilesInMemory;
 using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.PoEMemory.Models;
@@ -8,14 +7,14 @@ using ExileCore.Shared.Enums;
 using ExileCore.Shared.Helpers;
 using SharpDX;
 
-namespace AdvancedTooltip
+namespace InventoryItemsAnalyzer
 {
     public class ModValue
     {
-        public ModValue(ItemMod mod, FilesContainer fs, int iLvl, BaseItemType baseItem)
+        public ModValue(ItemMod mod, ModRecordCache modRecordCache, int iLvl, BaseItemType baseItem)
         {
             var baseClassName = baseItem.ClassName.ToLower().Replace(' ', '_');
-            Record = fs.Mods.records[mod.RawName];
+            Record = modRecordCache.ModRecords[mod.RawName];
             AffixType = Record.AffixType;
             AffixText = string.IsNullOrEmpty(Record.UserFriendlyName) ? Record.Key : Record.UserFriendlyName;
             IsCrafted = Record.Domain == ModDomain.Master;
@@ -23,7 +22,7 @@ namespace AdvancedTooltip
             Tier = -1;
             var subOptimalTierDistance = 0;
 
-            if (fs.Mods.recordsByTier.TryGetValue(Tuple.Create(Record.Group, Record.AffixType), out var allTiers))
+            if (modRecordCache.ModRecordsByTier.TryGetValue(Tuple.Create(Record.Group, Record.AffixType), out var allTiers))
             {
                 var tierFound = false;
                 TotalTiers = 0;

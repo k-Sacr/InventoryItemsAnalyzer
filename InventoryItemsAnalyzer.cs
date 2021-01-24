@@ -910,8 +910,15 @@ namespace InventoryItemsAnalyzer
 
         private bool IsVeiled()
         {
-            return _mods.Exists(mod =>
-                mod.Record.Group.Contains("VeiledSuffix") || mod.Record.Group.Contains("VeiledPrefix"));
+            try
+            {
+                return _mods.Exists(mod =>
+                    mod.Record.Group.Contains("VeiledSuffix") || mod.Record.Group.Contains("VeiledPrefix") || mod.Record.Group.Contains("Veiled"));
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private void CheckGood(int value, RectangleF drawRect)

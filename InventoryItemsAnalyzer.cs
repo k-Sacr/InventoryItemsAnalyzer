@@ -185,8 +185,12 @@ namespace InventoryItemsAnalyzer
 
                     if (Settings.VendorForScrolls)
                     {
-                        if (item.Path == @"Metadata/Items/Currency/CurrencyArmourQuality" ||
-                            item.Path == @"Metadata/Items/Currency/CurrencyWeaponQuality")
+                        if (item.Path == @"Metadata/Items/Currency/CurrencyArmourQuality")
+                        {
+                            _allItemsPos.Add(drawRect);
+                        }
+                        if (item.Path == @"Metadata/Items/Currency/CurrencyUpgradeToMagic" &&
+                            new Random().NextDouble() < 0.25f)
                         {
                             _allItemsPos.Add(drawRect);
                         }

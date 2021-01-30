@@ -129,24 +129,38 @@ namespace InventoryItemsAnalyzer
 
             if (wait > _wait.Ticks)
             {
-                var normalInventoryItems = _ingameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory]
-                    .VisibleInventoryItems;
-
-                var temp = normalInventoryItems.Count(t => t.Item?.GetComponent<Mods>()?.Identified == true);
+                IList<NormalInventoryItem> allItems = GetVisibleItems() ;
+                
+                var temp = allItems.Count(t => t.Item?.GetComponent<Mods>()?.Identified == true);
 
                 //LogMessage(normalInventoryItems.Count.ToString() + " " + CountInventory.ToString() + " // " + temp .ToString() + " " + idenf.ToString(), 3f);
 
-                if (normalInventoryItems.Count != _countInventory || temp != _idenf)
+                if (allItems.Count != _countInventory || temp != _idenf)
                 {
-                    ScanInventory(normalInventoryItems);
-                    _countInventory = normalInventoryItems.Count;
-                    _idenf = temp;
+                    ScanInventory(allItems);
+                    _countInventory = allItems.Count;
+                    _idenf          = temp;
                 }
 
                 _renderWait = DateTime.Now;
             }
         }
 
+        private IList<NormalInventoryItem> GetVisibleItems()
+        {
+            var normalInventoryItems = _ingameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory]
+                .VisibleInventoryItems;
+
+            if (_ingameState.IngameUi.RitualWindow.IsVisible)
+            {
+                IList<NormalInventoryItem> ritualItems = _ingameState.IngameUi.RitualWindow.Items;
+
+                return normalInventoryItems.Concat(ritualItems).ToList();
+            }
+
+            return normalInventoryItems;
+        }
+        
         #region Scan Inventory
 
         private void ScanInventory(IList<NormalInventoryItem> normalInventoryItems)

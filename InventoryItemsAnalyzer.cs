@@ -24,12 +24,12 @@ namespace InventoryItemsAnalyzer
         private int _ninjaDelayMs = 1000;
         private const string COROUTINE_NAME = "InventoryItemsAnalyzer";
         private readonly Stopwatch _lastTickTimer;
-        private readonly List<RectangleF> _allItemsPos;
+        private List<RectangleF> _allItemsPos { get; set; }
         private readonly List<RectangleF> _goodItemsPos;
         private readonly List<RectangleF> _highItemsPos;
         private readonly string[] _incElemDmg =
             {"FireDamagePercentage", "ColdDamagePercentage", "LightningDamagePercentage"};
-        private const string LEAGUE_NAME = "Ritual";
+        private const string LEAGUE_NAME = "Ultimatum";
         private readonly List<RectangleF> _veilItemsPos;
         private int _countInventory;
         private int _idenf;
@@ -679,10 +679,20 @@ namespace InventoryItemsAnalyzer
 
         private IEnumerator ClickShit()
         {
+            _allItemsPos = _allItemsPos.OrderBy(x => x.X).ToList();
+            
             Input.KeyDown(Keys.LControlKey);
             foreach (var position in _allItemsPos)
             {
-                var vector2 = new Vector2(position.X + 25, position.Y + 25);
+                #region Random
+
+                Random random = new Random(Environment.TickCount);
+
+                int value = random.Next(23, 27);
+
+                #endregion
+                
+                var vector2 = new Vector2(position.X + value, position.Y + value);
 
                 yield return Input.SetCursorPositionSmooth(vector2 + _windowOffset);
 
